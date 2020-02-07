@@ -27,12 +27,12 @@
 -   [Update tag](#update-tag)  
 -   [Delete tag](#delete-tag)  
 
-#### Custom Fields  
+#### Contact Fields  
 
--   [Fetch custom fields](#fetch-custom-fields)  
--   [Create custom field](#create-custom-field)  
--   [Update custom field](#update-custom-field)  
--   [Delete custom field](#delete-custom-field)  
+-   [Fetch contact fields](#fetch-contact-fields)  
+-   [Create contact field](#create-contact-field)  
+-   [Update contact field](#update-contact-field)  
+-   [Delete contact field](#delete-contact-field)  
 
 #### Messages  
 
@@ -108,25 +108,25 @@
 
 ```
 
-### <a href='fetch-custom-fields'>Fetch custom fields</a>  
+### <a href='fetch-contact-fields'>Fetch contact fields</a>  
 
 ```php
 
 ```
 
-### <a href='create-custom-field'>Create custom field</a>  
+### <a href='create-contact-field'>Create contact field</a>  
 
 ```php
 
 ```
 
-### <a href='update-custom-field'>Update custom field</a>  
+### <a href='update-contact-field'>Update contact field</a>  
 
 ```php
 
 ```
 
-### <a href='delete-custom-field'>Delete custom field</a>  
+### <a href='delete-contact-field'>Delete contact field</a>  
 
 ```php
 
