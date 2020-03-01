@@ -1,0 +1,21 @@
+{
+    "name": "sendbee/api",
+    "description": "PHP API for sendbee.io",
+    "type": "library",
+    "require": {
+        "php": "^7.2.5",
+        "guzzlehttp/guzzle": "^6.5"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sendbee",
+            "email": "info@sendbee.io"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Sendbee\\Api\\": "src/Sendbee/Api"
+        }
+    }
+}
