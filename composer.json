@@ -3,7 +3,7 @@
     "description": "PHP API for sendbee.io",
     "type": "library",
     "require": {
-        "php": "^7.2.5",
+        "php": ">=5.5",
         "guzzlehttp/guzzle": "^6.5"
     },
     "license": "MIT",
