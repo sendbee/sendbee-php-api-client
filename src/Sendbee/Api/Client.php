@@ -10,6 +10,9 @@ use Sendbee\Api\Models\Contact;
 use Sendbee\Api\Models\ContactField;
 use Sendbee\Api\Models\ContactTag;
 use Sendbee\Api\Models\Conversation;
+use Sendbee\Api\Models\Message;
+use Sendbee\Api\Models\MessageTemplate;
+use Sendbee\Api\Models\SentMessage;
 use Sendbee\Api\Models\ServerMessage;
 
 class Client extends BaseClient
@@ -18,7 +21,7 @@ class Client extends BaseClient
      * Get a paginated list of contacts optionally filtered by tags, status and/or search_query
      *
      * @param array $data
-     * @return ResponseInterface|Transport\Response|null
+     * @return ResponseInterface|Sendbee\Api\Transport\Response|null
      * @throws GuzzleException
      */
     public function getContacts($data = [])
@@ -38,7 +41,7 @@ class Client extends BaseClient
      * Subscribe (add) a contact
      *
      * @param $contactData
-     * @return Transport\Response|string
+     * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
      * @throws Support\DataException
      */
@@ -54,7 +57,7 @@ class Client extends BaseClient
      * Update contact information
      *
      * @param $contactData
-     * @return ResponseInterface|Transport\Response|null
+     * @return ResponseInterface|Sendbee\Api\Transport\Response|null
      * @throws GuzzleException
      * @throws Support\DataException
      */
@@ -70,7 +73,7 @@ class Client extends BaseClient
      * Get a list of tags
      *
      * @param array $params
-     * @return Transport\Response|string
+     * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
      */
     public function getTags($params = [])
@@ -89,7 +92,7 @@ class Client extends BaseClient
      * Create a new tag
      *
      * @param $data
-     * @return Transport\Response|string
+     * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
      * @throws Support\DataException
      */
@@ -105,7 +108,7 @@ class Client extends BaseClient
      * Update an existing tag
      *
      * @param $data
-     * @return Transport\Response|string
+     * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
      * @throws Support\DataException
      */
@@ -121,7 +124,7 @@ class Client extends BaseClient
      * Delete an existing tag
      *
      * @param $data
-     * @return Transport\Response|string
+     * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
      * @throws Support\DataException
      */
@@ -137,7 +140,7 @@ class Client extends BaseClient
      * Get contact fields
      *
      * @param array $params
-     * @return Transport\Response|string
+     * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
      */
     public function getContactFields($params = [])
@@ -155,7 +158,7 @@ class Client extends BaseClient
      * Create a new contact field
      *
      * @param $data
-     * @return Transport\Response|string
+     * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
      * @throws Support\DataException
      */
@@ -171,7 +174,7 @@ class Client extends BaseClient
      * Update an existing contact field
      *
      * @param $data
-     * @return Transport\Response|string
+     * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
      * @throws Support\DataException
      */
@@ -187,7 +190,7 @@ class Client extends BaseClient
      * Delete an existing contact field
      *
      * @param $data
-     * @return Transport\Response|string
+     * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
      * @throws Support\DataException
      */
@@ -203,7 +206,7 @@ class Client extends BaseClient
      * Get conversations
      *
      * @param array $params
-     * @return Transport\Response|string
+     * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
      */
     public function getConversations($params = [])
@@ -222,7 +225,7 @@ class Client extends BaseClient
      * Get messages in a conversation
      *
      * @param array $params
-     * @return Transport\Response|string
+     * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
      * @throws Support\DataException
      */
@@ -238,30 +241,38 @@ class Client extends BaseClient
 
         $query = $this->filterKeys($validParams, $params);
 
-        return $this->makeRequest('conversations/messages', self::GET, $query);
+        return $this->makeRequest('conversations/messages', self::GET, $query, [], Message::class);
     }
 
     /**
      * Send a message
      *
-     * @param $data
-     * @return Transport\Response|string
+     * @param  $params
+     * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
      * @throws Support\DataException
      */
-    public function sendMessage($data)
+    public function sendMessage($params)
     {
-        $requiredKeys = ['phone'];
-        $this->requireKeys($requiredKeys, $data);
+        $requiredKeys = ['phone', 'text'];
+        $this->requireKeys($requiredKeys, $params);
 
-        return $this->makeRequest('/conversations/messages/send', self::POST, [], $data);
+        $validParams = [
+            'phone', // Contact's phone number
+            'text', // Message text
+            'media_url', // Media URL for media message
+        ];
+
+        $data = $this->filterKeys($validParams, $params);
+
+        return $this->makeRequest('/conversations/messages/send', self::POST, [], $data, SentMessage::class);
     }
 
     /**
      * Get message templates
      *
      * @param array $params
-     * @return Transport\Response|string
+     * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
      */
     public function getMessageTemplates($params = [])
@@ -273,30 +284,30 @@ class Client extends BaseClient
         ];
 
         $query = $this->filterKeys($validParams, $params);
-        return $this->makeRequest('/conversations/messages/templates', self::GET, $query);
+        return $this->makeRequest('/conversations/messages/templates', self::GET, $query, [], MessageTemplate::class);
     }
 
     /**
      * Send a message template
      *
-     * @param $data
-     * @return Transport\Response|string
+     * @param array $data
+     * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
      * @throws Support\DataException
      */
-    public function sendMessageTemplate($data)
+    public function sendMessageTemplate($data = [])
     {
         $requiredKeys = ['phone', 'template_keyword', 'language', 'tags'];
         $this->requireKeys($requiredKeys, $data);
 
-        return $this->makeRequest('/conversations/messages/templates/send', self::POST, [], $data);
+        return $this->makeRequest('/conversations/messages/templates/send', self::POST, [], $data, SentMessage::class);
     }
 
     /**
      * Enable or disable chatbot for a conversation
      *
      * @param $data
-     * @return Transport\Response|string
+     * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
      * @throws Support\DataException
      */
@@ -305,7 +316,7 @@ class Client extends BaseClient
         $requiredKeys = ['conversation_id', 'active'];
         $this->requireKeys($requiredKeys, $data);
 
-        return $this->makeRequest('/automation/chatbot/activity', self::PUT, [], $data);
+        return $this->makeRequest('/automation/chatbot/activity', self::PUT, [], $data, ServerMessage::class);
     }
 
 }

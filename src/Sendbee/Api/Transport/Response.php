@@ -4,8 +4,8 @@
 namespace Sendbee\Api\Transport;
 
 
-use Exception;
 use Sendbee\Api\Support\DataException;
+use Sendbee\Api\Support\FieldText;
 
 class Response
 {
@@ -17,6 +17,11 @@ class Response
      * @var int HTTP status
      */
     protected $httpStatus = 0;
+    /**
+     * @var string Raw response body
+     */
+    protected $rawBody = '';
+
     protected $data;
     protected $meta;
     protected $links;
@@ -27,29 +32,40 @@ class Response
     {
         $this->httpStatus = $httpStatus;
         $this->success = ($httpStatus >= 200) && ($httpStatus < 300);
+        $this->rawBody = $responseBody;
 
         try
         {
-            $parsed = json_decode($responseBody, true);
+            // decode with creating objects out of assoc arrays
+            $parsed = json_decode($responseBody);
 
-            foreach (['meta', 'links', 'warning', 'error'] as $key)
+            $mapping = [
+                'meta' => ResponseMeta::class,
+                'warning' => FieldText::class,
+                'error' => ResponseError::class
+            ];
+
+            foreach ($mapping as $key => $classname)
             {
-                if(array_key_exists($key, $parsed))
+                if(property_exists($parsed, $key))
                 {
-                    $this->$key = $parsed[$key];
+                    $this->$key = new $classname($parsed->$key);
                 }
             }
 
-
-            if(array_key_exists('data', $parsed))
+            if(property_exists($parsed, 'data'))
             {
-                $data = $parsed['data'];
+                $data = $parsed->data;
 
                 // creates models if a class is specified and it exists
                 if($dataModelClass && class_exists($dataModelClass))
                 {
+                    // determine if this is an array of objects or object
+                    $isCollection = is_array($data);
 
-                    if($this->isPaginatedResponse())
+
+
+                    if($isCollection)
                     {
                         // if we have pagination data, assume we received a collection of models back
                         $this->data = [];
@@ -77,12 +93,6 @@ class Response
 
     }
 
-    protected function isPaginatedResponse()
-    {
-        $meta = $this->getMeta();
-        return (!empty($meta) && array_key_exists('total', $meta));
-    }
-
     /**
      * @return bool
      */
@@ -98,6 +108,15 @@ class Response
     {
         return $this->httpStatus;
     }
+
+    /**
+     * @return string
+     */
+    public function getRawBody()
+    {
+        return $this->rawBody;
+    }
+
 
     /**
      * @return mixed

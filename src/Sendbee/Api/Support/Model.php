@@ -6,33 +6,92 @@ namespace Sendbee\Api\Support;
 
 class Model
 {
-    public static function fieldBoolean(){
+    /**
+     * Creates a new Bool field container
+     *
+     * @return FieldBoolean
+     */
+    public static function fieldBoolean()
+    {
         return new FieldBoolean();
     }
 
-    public static function fieldText(){
+    public static function fieldInteger()
+    {
+        return new FieldInteger();
+    }
+
+    /**
+     * Creates a new text field container
+     *
+     * @return FieldText
+     */
+    public static function fieldText()
+    {
         return new FieldText();
     }
 
-    public static function fieldDateTime(){
+    /**
+     * Creates a new UUID field container
+     *
+     * @return FieldText
+     */
+    public static function fieldUUID()
+    {
+        // @todo: implement UUID
+        return new FieldText();
+    }
+
+    /**
+     * Creates a new DateTime field container
+     *
+     * @return FieldText
+     */
+    public static function fieldDateTime()
+    {
         // @todo: implement DateTime
         return new FieldText();
     }
 
-    public static function fieldArray(){
-        // @todo: implement DateTime
+    /**
+     * Creates a new array field container
+     *
+     * @return FieldArray
+     */
+    public static function fieldArray()
+    {
         return new FieldArray();
     }
 
-    public static function fieldModel($itemClass){
+    /**
+     * Creates a new field container for the specified model
+     *
+     * @param $itemClass
+     * @return FieldModel
+     */
+    public static function fieldModel($itemClass)
+    {
         return new FieldModel($itemClass);
     }
 
-    public static function fieldModelCollection($itemClass){
+    /**
+     * Creates a new field container for an array of specified models
+     *
+     * @param $itemClass
+     * @return FieldModelCollection
+     */
+    public static function fieldModelCollection($itemClass)
+    {
         return new FieldModelCollection($itemClass);
     }
 
-    protected function getFieldSpecification(){
+    /**
+     * Get list of fields on the model
+     *
+     * @return array
+     */
+    protected function getFieldSpecification()
+    {
         return [];
     }
 
@@ -48,15 +107,15 @@ class Model
      *
      * @param array $attributes
      * @return void
-     * @throws DataException
      */
-    public function __construct(array $attributes = [])
+    public function __construct($attributes = [])
     {
         $this->buildAttributes();
         $this->fill($attributes);
     }
 
-    protected function buildAttributes(){
+    protected function buildAttributes()
+    {
         $this->attributes = $this->getFieldSpecification();
     }
 
@@ -66,13 +125,14 @@ class Model
      * @param array $attributes
      * @return $this
      *
-     * @throws DataException
      */
-    public function fill(array $attributes)
+    public function fill($attributes)
     {
+        if (is_object($attributes)) {
+            $attributes = (array)$attributes;
+        }
 
         foreach ($attributes as $key => $value) {
-
             $this->setAttribute($key, $value);
         }
 
@@ -85,21 +145,19 @@ class Model
      * @param string $key
      * @param mixed $value
      * @return mixed
-     * @throws DataException
      */
     public function setAttribute($key, $value)
     {
-        if(!array_key_exists($key, $this->attributes))
-        {
-            throw new DataException("Field '{$key}' is not present on model.");
+        if (!array_key_exists($key, $this->attributes)) {
+            trigger_error("Field '{$key}' is not present on model (" . get_class($this) . ").");
+            return $this;
         }
 
-        $model = $this->attributes[$key];
-        $model->set($value, $key);
+        $field = $this->attributes[$key];
+        $field->set($value, $key);
 
-        if(!$model->isValid())
-        {
-            throw new DataException("Invalid value for field '{$key}', got " . print_r($value, true));
+        if (!$field->isValid()) {
+            trigger_error("Invalid value for field '{$key}', got " . print_r($value, true));
         }
 
         return $this;
@@ -118,12 +176,12 @@ class Model
     /**
      * Get an attribute from the model.
      *
-     * @param  string  $key
+     * @param string $key
      * @return mixed
      */
     public function getAttribute($key)
     {
-        if (! $key) {
+        if (!$key) {
             return null;
         }
 
@@ -138,7 +196,7 @@ class Model
     /**
      * Dynamically retrieve attributes on the model.
      *
-     * @param  string  $key
+     * @param string $key
      * @return mixed
      */
     public function __get($key)
@@ -152,7 +210,6 @@ class Model
      * @param string $key
      * @param mixed $value
      * @return void
-     * @throws DataException
      */
     public function __set($key, $value)
     {

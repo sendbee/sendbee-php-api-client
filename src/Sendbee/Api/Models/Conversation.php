@@ -23,7 +23,7 @@ class Conversation extends Model
 {
     protected function getFieldSpecification(){
         return [
-            'id'                => self::fieldText(),
+            'id'                => self::fieldUUID(),
             'folder'            => self::fieldText(),
             'chatbot_active'    => self::fieldBoolean(),
             'platform'          => self::fieldText(),

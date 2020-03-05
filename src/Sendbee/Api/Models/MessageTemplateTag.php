@@ -7,17 +7,15 @@ namespace Sendbee\Api\Models;
 use Sendbee\Api\Support\Model;
 
 /**
- * Class ContactTag
+ * Class MessageTemplateTag
  * @package Sendbee\Api\Models
  *
- * @property string $id UUID
  * @property string $name tag name
  */
-class ContactTag extends Model
+class MessageTemplateTag extends Model
 {
     protected function getFieldSpecification(){
         return [
-            'id'                => self::fieldUUID(),
             'name'              => self::fieldText(),
         ];
     }

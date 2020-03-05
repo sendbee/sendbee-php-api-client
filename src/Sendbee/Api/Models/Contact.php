@@ -27,7 +27,7 @@ class Contact extends Model
 {
     protected function getFieldSpecification(){
         return [
-            'id'                => self::fieldText(),
+            'id'                => self::fieldUUID(),
             'name'              => self::fieldText(),
             'phone'             => self::fieldText(),
             'email'             => self::fieldText(),
