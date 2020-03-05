@@ -151,7 +151,7 @@ class Response
     }
 
     /**
-     * @return mixed
+     * @return null|ResponseError
      */
     public function getError()
     {

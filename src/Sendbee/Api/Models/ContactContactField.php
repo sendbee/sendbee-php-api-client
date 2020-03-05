@@ -8,8 +8,10 @@ use Sendbee\Api\Support\Model;
 
 /**
  * Class ContactContactField
- *
  * @package Sendbee\Api\Models
+ *
+ * @property string $key contact field key
+ * @property string $value contact field value
  */
 class ContactContactField extends Model
 {

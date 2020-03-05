@@ -54,33 +54,338 @@
 
 ## <a href='installation'>Installation</a>  
 
-```bash
+The recommended way to install Sendbee API is with [Composer](https://getcomposer.org/).
 
+#### 1. Install Composer
+```bash
+curl -sS https://getcomposer.org/installer | php
+```
+
+#### 2. Install Sendbee API using Composer
+
+##### 2.a Using Composer CLI
+You can add Sendbee API as a dependency using the composer.phar CLI:
+
+```bash
+php composer.phar require sendbee/api
+```
+
+##### 2.b Using global composer CLI
+If Composer is available globally on your system, you can run the following from your project root.
+
+```bash
+composer require sendbee/api
+```
+
+##### 2.c Modifying existing composer.json
+If you have an existing project that uses Composer and has `composer.json` file, 
+you can specify `sendbee/api` as a dependency.
+```json
+ {
+   "require": {
+      "sendbee/api": "~1.0"
+   }
+}
+```
+
+After adding a dependency you should tell composer to update dependencies
+```bash
+composer update
 ```
 
 ## Usage  
 
+### <a href='initialization'>Autoload</a>  
+After installing, you need to require Composer's autoloader:
+```php
+require 'vendor/autoload.php';
+```
+
+You can find out more on how to install Composer, configure autoloading, and other best-practices for defining dependencies at [Composer](https://getcomposer.org/).
+
+
 ### <a href='initialization'>Initialization</a>  
 
-```php
+To initialize the API client, you'll need a public key and secret. That data is available in your Sendbee dashboard.
 
+```php
+$sendbeeApi = new \Sendbee\Api\Client($public_key, $secret);
 ```
 
 ### <a href='fetch-contacts'>Fetch contacts</a>  
 
 ```php
+$sendbeeApi = new \Sendbee\Api\Client($public_key, $secret);
 
+# optional parameters
+$params = [
+    'tags' => '', // Filter contacts by tag
+    'status' => '', // Filter contacts by status
+    'search_query' => '', // Filter contacts by query string
+    'page' => 1 // Page number for pagination
+];
+
+try
+{
+    $response = $sendbeeApi->getContacts($params);
+}
+catch(\Exception $ex)
+{
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+if($response->isSuccess())
+{
+    $data = $response->getData();
+
+    foreach($data as $contact)
+    {
+        /**
+         * @var $contact \Sendbee\Api\Models\Contact
+         */
+        echo "\n ID: ", $contact->id;
+        echo "\n name: ", $contact->name;
+        echo "\n phone: ", $contact->phone;
+        echo "\n email: ", $contact->email;
+        echo "\n created_at: ", $contact->created_at;
+        echo "\n status: ", $contact->status;
+        echo "\n folder: ", $contact->folder;
+        echo "\n facebook_link: ", $contact->facebook_link;
+        echo "\n twitter_link: ", $contact->twitter_link;
+
+        foreach($contact->tags as $tag)
+        {
+            /**
+             * @var $tag \Sendbee\Api\Models\ContactTag
+             */
+
+            echo "\n tag -> id: ", $tag->id;
+            echo "\n tag -> name: ", $tag->name;
+        }
+
+        foreach($contact->notes as $note)
+        {
+            /**
+             * @var $note \Sendbee\Api\Models\ContactNote
+             */
+
+            echo "\n note -> value: ", $note->value;
+        }
+
+        foreach($contact->contact_fields as $contactField)
+        {
+            /**
+             * @var $contactField \Sendbee\Api\Models\ContactContactField
+             */
+
+            echo "\n contact_field -> key: ", $contactField->key;
+            echo "\n contact_field -> value: ", $contactField->value;
+        }
+
+
+    }
+}
+else
+{
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+
+    if($error)
+    {
+        echo $error->type;
+        echo $error->detail;
+    }
+}
 ```
 
 ### <a href='subscribe-contact'>Subscribe contact</a>  
 
 ```php
+$sendbeeApi = new \Sendbee\Api\Client($public_key, $secret);
 
+$contactData = [
+    // contact phone number, MANDATORY
+    'phone' => '+...',
+
+    // feel free to specify other contact data here
+    // data listed below is optional
+
+    // tag new contact
+    // if tag doesn't exist, it will be created
+    'tags' => ['...', ],
+
+    // contact name
+    'name' => '...',
+
+    // contact email
+    'email' => '...',
+
+    // contact address
+    // specify line, city and postal_code
+    'address' => ['line' => '...', 'city' => '...', 'postal_code' => '...'],
+
+    // contact fields
+    // contact fields must be pre-created in Sendbee Dashboard
+    // any non-existent field will be ignored
+    'contact_fields' => ['...' => '...'],
+
+    // contact facebook link
+    'facebook_link' => '...',
+
+    // contact twitter link
+    'twitter_link' => '...',
+
+    // your notes about subscriber
+    'notes' => ['...'],
+
+    // prevent sending browser push notification and email
+    // notification to agents, when new contact subscribes
+    // (default is True)
+    'block_notifications' => true,
+
+    // prevent sending automated template messages to newly
+    // subscribed contact (if any is set in Sendbee Dashboard)
+    // (default is True)
+    'block_automation' => true
+];
+
+try
+{
+    $response = $sendbeeApi->subscribeContact($contactData);
+}
+catch(\Sendbee\Api\Support\DataException $ex)
+{
+    // handle missing data
+    // this happens when required data was not provided
+    echo "Could not subscribe a contact. ", $ex->getMessage();
+}
+catch(\Exception $ex)
+{
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+if($response->isSuccess())
+{
+    /**
+     * @var $contact \Sendbee\Api\Models\Contact
+     */
+    $contact = $response->getData();
+
+    // contact is now subscribed (created),
+    // handle success here
+}
+else
+{
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if($error)
+    {
+        // handle error
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
+    }
+}
 ```
 
 ### <a href='update-contact'>Update contact</a>  
 
 ```php
+## update an existing contact
+
+$contactData = [
+    // contact id, MANDATORY
+    'id' => '...',
+
+    // feel free to specify other contact data here
+    // data listed below is optional
+
+    // tag new contact
+    // if tag doesn't exist, it will be created
+    'tags' => ['...', ],
+
+    // contact name
+    'name' => '...',
+
+    // contact email
+    'email' => '...',
+
+    // contact address
+    // specify line, city and postal_code
+    'address' => ['line' => '...', 'city' => '...', 'postal_code' => '...'],
+
+    // contact fields
+    // contact fields must be pre-created in Sendbee Dashboard
+    // any non-existent field will be ignored
+    'contact_fields' => ['...' => '...'],
+
+    // contact facebook link
+    'facebook_link' => '...',
+
+    // contact twitter link
+    'twitter_link' => '...',
+
+    // your notes about subscriber
+    'notes' => ['...'],
+
+    // prevent sending browser push notification and email
+    // notification to agents, when new contact subscribes
+    // (default is True)
+    'block_notifications' => true,
+
+    // prevent sending automated template messages to newly
+    // subscribed contact (if any is set in Sendbee Dashboard)
+    // (default is True)
+    'block_automation' => true
+];
+
+try
+{
+    $response = $sendbeeApi->updateContact($contactData);
+}
+catch(\Sendbee\Api\Support\DataException $ex)
+{
+    // handle missing data
+    // this happens when required data was not provided
+    echo "Could not update a contact. ", $ex->getMessage();
+}
+catch(\Exception $ex)
+{
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+if($response->isSuccess())
+{
+    /**
+     * @var $contact \Sendbee\Api\Models\Contact
+     */
+    $contact = $response->getData();
+
+    // contact is now updated,
+    // handle success here
+}
+else
+{
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if($error)
+    {
+        // handle error
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
+    }
+}
 
 ```
 

@@ -21,8 +21,7 @@ class Client extends BaseClient
      * Get a paginated list of contacts optionally filtered by tags, status and/or search_query
      *
      * @param array $data
-     * @return ResponseInterface|Sendbee\Api\Transport\Response|null
-     * @throws GuzzleException
+     * @return ResponseInterface|Transport\Response|null
      */
     public function getContacts($data = [])
     {
