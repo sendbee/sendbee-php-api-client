@@ -14,7 +14,7 @@ class FieldModel
     }
     
     public function get(){
-        return $this->value->get();
+        return $this->value;
     }
     public function set($value = []){
         $this->value->fill($value);

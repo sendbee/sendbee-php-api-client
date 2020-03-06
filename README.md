@@ -34,6 +34,11 @@
 -   [Update contact field](#update-contact-field)  
 -   [Delete contact field](#delete-contact-field)  
 
+#### Conversations
+
+-   [Fetch conversations](#fetch-conversations)  
+-   [Fetch messages](#fetch-messages)  
+
 #### Messages  
 
 -   [Fetch message templates](#fetch-message-templates)  
@@ -81,7 +86,7 @@ composer require sendbee/api
 If you have an existing project that uses Composer and has `composer.json` file, 
 you can specify `sendbee/api` as a dependency.
 ```json
- {
+{
    "require": {
       "sendbee/api": "~1.0"
    }
@@ -117,7 +122,7 @@ $sendbeeApi = new \Sendbee\Api\Client($public_key, $secret);
 ```php
 $sendbeeApi = new \Sendbee\Api\Client($public_key, $secret);
 
-# optional parameters
+// optional parameters
 $params = [
     'tags' => '', // Filter contacts by tag
     'status' => '', // Filter contacts by status
@@ -125,23 +130,20 @@ $params = [
     'page' => 1 // Page number for pagination
 ];
 
-try
-{
+try {
     $response = $sendbeeApi->getContacts($params);
-}
-catch(\Exception $ex)
-{
+} catch (\Exception $ex) {
     // handle exception thrown by GuzzleHttp
     // this is most likely due to a network issue
     echo "Could not contact backend endpoint. ", $ex->getMessage();
 }
 
-if($response->isSuccess())
-{
+if ($response->isSuccess()) {
+    // everything is OK
+
     $data = $response->getData();
 
-    foreach($data as $contact)
-    {
+    foreach ($data as $contact) {
         /**
          * @var $contact \Sendbee\Api\Models\Contact
          */
@@ -155,8 +157,7 @@ if($response->isSuccess())
         echo "\n facebook_link: ", $contact->facebook_link;
         echo "\n twitter_link: ", $contact->twitter_link;
 
-        foreach($contact->tags as $tag)
-        {
+        foreach ($contact->tags as $tag) {
             /**
              * @var $tag \Sendbee\Api\Models\ContactTag
              */
@@ -165,8 +166,7 @@ if($response->isSuccess())
             echo "\n tag -> name: ", $tag->name;
         }
 
-        foreach($contact->notes as $note)
-        {
+        foreach ($contact->notes as $note) {
             /**
              * @var $note \Sendbee\Api\Models\ContactNote
              */
@@ -174,8 +174,7 @@ if($response->isSuccess())
             echo "\n note -> value: ", $note->value;
         }
 
-        foreach($contact->contact_fields as $contactField)
-        {
+        foreach ($contact->contact_fields as $contactField) {
             /**
              * @var $contactField \Sendbee\Api\Models\ContactContactField
              */
@@ -183,21 +182,15 @@ if($response->isSuccess())
             echo "\n contact_field -> key: ", $contactField->key;
             echo "\n contact_field -> value: ", $contactField->value;
         }
-
-
     }
-}
-else
-{
+} else {
     /**
      * @var $error \Sendbee\Api\Transport\ResponseError
      */
     $error = $response->getError();
-
-    if($error)
-    {
-        echo $error->type;
-        echo $error->detail;
+    if ($error) {
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
     }
 }
 ```
@@ -205,18 +198,15 @@ else
 ### <a href='subscribe-contact'>Subscribe contact</a>  
 
 ```php
-$sendbeeApi = new \Sendbee\Api\Client($public_key, $secret);
-
 $contactData = [
     // contact phone number, MANDATORY
     'phone' => '+...',
 
-    // feel free to specify other contact data here
-    // data listed below is optional
+    // feel free to specify other optional contact data here
 
     // tag new contact
     // if tag doesn't exist, it will be created
-    'tags' => ['...', ],
+    'tags' => ['...',],
 
     // contact name
     'name' => '...',
@@ -225,13 +215,12 @@ $contactData = [
     'email' => '...',
 
     // contact address
-    // specify line, city and postal_code
-    'address' => ['line' => '...', 'city' => '...', 'postal_code' => '...'],
+    'address' => '...',
 
     // contact fields
     // contact fields must be pre-created in Sendbee Dashboard
     // any non-existent field will be ignored
-    'contact_fields' => ['...' => '...'],
+    'contact_fields' => ['key' => 'value'],
 
     // contact facebook link
     'facebook_link' => '...',
@@ -253,41 +242,32 @@ $contactData = [
     'block_automation' => true
 ];
 
-try
-{
+try {
     $response = $sendbeeApi->subscribeContact($contactData);
-}
-catch(\Sendbee\Api\Support\DataException $ex)
-{
+} catch (\Sendbee\Api\Support\DataException $ex) {
     // handle missing data
     // this happens when required data was not provided
     echo "Could not subscribe a contact. ", $ex->getMessage();
-}
-catch(\Exception $ex)
-{
+} catch (\Exception $ex) {
     // handle exception thrown by GuzzleHttp
     // this is most likely due to a network issue
     echo "Could not contact backend endpoint. ", $ex->getMessage();
 }
 
-if($response->isSuccess())
-{
+if ($response->isSuccess()) {
     /**
      * @var $contact \Sendbee\Api\Models\Contact
      */
     $contact = $response->getData();
 
-    // contact is now subscribed (created),
-    // handle success here
-}
-else
-{
+    // contact is now subscribed (created)
+    // $contact contains the newly created contact data
+} else {
     /**
      * @var $error \Sendbee\Api\Transport\ResponseError
      */
     $error = $response->getError();
-    if($error)
-    {
+    if ($error) {
         // handle error
         echo "\n error type: ", $error->type;
         echo "\n error details: ", $error->detail;
@@ -298,18 +278,15 @@ else
 ### <a href='update-contact'>Update contact</a>  
 
 ```php
-## update an existing contact
-
 $contactData = [
     // contact id, MANDATORY
     'id' => '...',
 
-    // feel free to specify other contact data here
-    // data listed below is optional
+    // feel free to specify other optional contact data here
 
     // tag new contact
     // if tag doesn't exist, it will be created
-    'tags' => ['...', ],
+    'tags' => ['...',],
 
     // contact name
     'name' => '...',
@@ -318,7 +295,6 @@ $contactData = [
     'email' => '...',
 
     // contact address
-    // specify line, city and postal_code
     'address' => ['line' => '...', 'city' => '...', 'postal_code' => '...'],
 
     // contact fields
@@ -333,6 +309,7 @@ $contactData = [
     'twitter_link' => '...',
 
     // your notes about subscriber
+    // TAKE CARE, notes are not replaced but are instead appended to existing notes
     'notes' => ['...'],
 
     // prevent sending browser push notification and email
@@ -346,107 +323,609 @@ $contactData = [
     'block_automation' => true
 ];
 
-try
-{
+try {
     $response = $sendbeeApi->updateContact($contactData);
-}
-catch(\Sendbee\Api\Support\DataException $ex)
-{
+} catch (\Sendbee\Api\Support\DataException $ex) {
     // handle missing data
     // this happens when required data was not provided
     echo "Could not update a contact. ", $ex->getMessage();
-}
-catch(\Exception $ex)
-{
+} catch (\Exception $ex) {
     // handle exception thrown by GuzzleHttp
     // this is most likely due to a network issue
     echo "Could not contact backend endpoint. ", $ex->getMessage();
 }
 
-if($response->isSuccess())
-{
+if ($response->isSuccess()) {
     /**
      * @var $contact \Sendbee\Api\Models\Contact
      */
     $contact = $response->getData();
 
-    // contact is now updated,
-    // handle success here
-}
-else
-{
+    // contact is now updated
+    // $contact contains the updated contact data
+
+} else {
     /**
      * @var $error \Sendbee\Api\Transport\ResponseError
      */
     $error = $response->getError();
-    if($error)
-    {
+    if ($error) {
         // handle error
         echo "\n error type: ", $error->type;
         echo "\n error details: ", $error->detail;
     }
 }
-
 ```
 
 ### <a href='fetch-tags'>Fetch tags</a>  
 
 ```php
+// optional parameters
+$params = [
+    'name' => '', // Name of the tag
+    'page' => 1 // Page number for pagination
+];
 
+try {
+    $response = $sendbeeApi->getTags($params);
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+if ($response->isSuccess()) {
+    // everything is OK
+
+    $data = $response->getData();
+
+    foreach ($data as $tag) {
+        /**
+         * @var $tag \Sendbee\Api\Models\ContactTag
+         */
+        echo "\n ID: ", $tag->id;
+        echo "\n name: ", $tag->name;
+    }
+} else {
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if ($error) {
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
+    }
+}
 ```
 
 ### <a href='create-tag'>Create tag</a>  
 
 ```php
+$data = [
+    // tag name, MANDATORY
+    'name' => '...'
+];
 
+try {
+    $response = $sendbeeApi->createTag($data);
+} catch (\Sendbee\Api\Support\DataException $ex) {
+    // handle missing data
+    // this happens when required data was not provided
+    echo "Missing required data. ", $ex->getMessage();
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+if ($response->isSuccess()) {
+    /**
+     * @var $tag \Sendbee\Api\Models\ContactTag
+     */
+    $tag = $response->getData();
+    print_r($tag);
+    // tag is now created
+    // $tag contains the newly created tag data
+} else {
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if ($error) {
+        // handle error
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
+    }
+}
 ```
 
 ### <a href='update-tag'>Update tag</a>  
 
 ```php
+$data = [
+    // tag id, MANDATORY
+    'id' => '...',
+    // tag name, MANDATORY
+    'name' => '...'
+];
 
+try {
+    $response = $sendbeeApi->updateTag($data);
+} catch (\Sendbee\Api\Support\DataException $ex) {
+    // handle missing data
+    // this happens when required data was not provided
+    echo "Missing required data. ", $ex->getMessage();
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+if ($response->isSuccess()) {
+    /**
+     * @var $tag \Sendbee\Api\Models\ContactTag
+     */
+    $tag = $response->getData();
+    // tag is now created
+    // $tag contains the updated tag data
+    print_r($tag);
+    
+} else {
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if ($error) {
+        // handle error
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
+    }
+}
 ```
 
-### <a href='update-tag'>Update tag</a>  
+### <a href='delete-tag'>Delete tag</a>  
 
 ```php
+$data = [
+    // tag id, MANDATORY
+    'id' => '...',
+];
 
+try {
+    $response = $sendbeeApi->deleteTag($data);
+} catch (\Sendbee\Api\Support\DataException $ex) {
+    // handle missing data
+    // this happens when required data was not provided
+    echo "Missing required data. ", $ex->getMessage();
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+if ($response->isSuccess()) {
+    /**
+     * @var $message \Sendbee\Api\Models\ServerMessage
+     */
+    $message = $response->getData();
+    // record is now deleted
+    // $message contains server info message
+    print_r($message);
+    
+} else {
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if ($error) {
+        // handle error
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
+    }
+}
 ```
 
 ### <a href='fetch-contact-fields'>Fetch contact fields</a>  
 
 ```php
+$params = [
+    'search_query' => '', // Filter by query string
+    'page' => 1 // Page number for pagination
+];
 
+try {
+    $response = $sendbeeApi->getContactFields($params);
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+if ($response->isSuccess()) {
+    // everything is OK
+
+    $data = $response->getData();
+
+    foreach ($data as $field) {
+        /**
+         * @var $tag \Sendbee\Api\Models\ContactField
+         */
+        echo "\n ID: ", $field->id;
+        echo "\n slug: ", $field->slug;
+        echo "\n type: ", $field->type;
+        echo "\n name: ", $field->name;
+
+        foreach ($field->options as $option) {
+            /**
+             * @var $option string
+             */
+
+            echo "\n field -> option: ", $option;
+        }
+
+    }
+} else {
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if ($error) {
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
+    }
+}
 ```
 
 ### <a href='create-contact-field'>Create contact field</a>  
 
 ```php
+$data = [
+    // name, MANDATORY
+    'name' => 'field name',
+    // type, one of ['text', 'number', 'list', 'date', 'boolean'], MANDATORY
+    'type' => 'text',
+    // List of options. Send it only if the field type is a list.
+    // values are strings
+    'options' => []
+];
 
+try {
+    $response = $sendbeeApi->createContactField($data);
+} catch (\Sendbee\Api\Support\DataException $ex) {
+    // handle missing data
+    // this happens when required data was not provided
+    echo "Missing required data. ", $ex->getMessage();
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+if ($response->isSuccess()) {
+    /**
+     * @var $contactField \Sendbee\Api\Models\ContactField
+     */
+    $contactField = $response->getData();
+    // contact field is now created
+    // $contactField contains the newly created contact field data
+    print_r($contactField);
+} else {
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if ($error) {
+        // handle error
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
+    }
+}
 ```
 
 ### <a href='update-contact-field'>Update contact field</a>  
 
 ```php
+$data = [
+    // id, MANDATORY
+    'id' => '...',
+    // name, MANDATORY
+    'name' => 'field name update',
+    // type, one of ['text', 'number', 'list', 'date', 'boolean'], MANDATORY
+    'type' => 'text',
+    // List of options. Send it only if the field type is a list.
+    // values are strings
+    'options' => []
+];
 
+try {
+    $response = $sendbeeApi->updateContactField($data);
+} catch (\Sendbee\Api\Support\DataException $ex) {
+    // handle missing data
+    // this happens when required data was not provided
+    echo "Missing required data. ", $ex->getMessage();
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+if ($response->isSuccess()) {
+    /**
+     * @var $contactField \Sendbee\Api\Models\ContactField
+     */
+    $contactField = $response->getData();
+    // contact field is now updated
+    // $contactField contains the updated contact field data
+    print_r($contactField);
+
+} else {
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if ($error) {
+        // handle error
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
+    }
+}
 ```
 
 ### <a href='delete-contact-field'>Delete contact field</a>  
 
 ```php
+$data = [
+    // id, MANDATORY
+    'id' => '...',
+];
 
+try {
+    $response = $sendbeeApi->deleteContactField($data);
+} catch (\Sendbee\Api\Support\DataException $ex) {
+    // handle missing data
+    // this happens when required data was not provided
+    echo "Missing required data. ", $ex->getMessage();
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+if ($response->isSuccess()) {
+    /**
+     * @var $message \Sendbee\Api\Models\ServerMessage
+     */
+    $message = $response->getData();
+    // record is now deleted
+    // $message contains server info message
+    print_r($message);
+    
+} else {
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if ($error) {
+        // handle error
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
+    }
+}
 ```
+
+### <a href='fetch-conversations'>Fetch conversations</a>  
+
+```php
+// optional parameters
+$params = [
+    // Filter conversations by folder. Specify open, done, spam or notified
+    'folder' => '',
+    // Any kind of string that will be used to perform filtering
+    'search_query' => '',
+    // Page number for pagination
+    'page' => 1
+];
+
+try {
+    $response = $sendbeeApi->getConversations($params);
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+
+if ($response->isSuccess()) {
+    // everything is OK
+    $data = $response->getData();
+
+    foreach ($data as $conversation) {
+        /**
+         * @var $conversation \Sendbee\Api\Models\Conversation
+         */
+        echo "\n ID: ", $conversation->id;
+        echo "\n folder: ", $conversation->folder;
+        echo "\n chatbot_active: ", $conversation->chatbot_active;
+        echo "\n platform: ", $conversation->platform;
+        echo "\n created_at: ", $conversation->created_at;
+
+        echo "\n contact -> id: ", $conversation->contact->id;
+        echo "\n contact -> name: ", $conversation->contact->name;
+        echo "\n contact -> phone: ", $conversation->contact->phone;
+
+        echo "\n last_message -> direction: ", $conversation->last_message->direction;
+        echo "\n last_message -> status: ", $conversation->last_message->status;
+        echo "\n last_message -> inbound_sent_at: ", $conversation->last_message->inbound_sent_at;
+        echo "\n last_message -> outbound_sent_at: ", $conversation->last_message->outbound_sent_at;
+
+    }
+} else {
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if ($error) {
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
+    }
+}
+```
+
+### <a href='fetch-messages'>Fetch messages in a conversation</a>  
+
+```php
+// parameters
+    $params = [
+        // Conversation UUID, MANDATORY
+        'conversation_id' => '10d4c5ce-9a99-48a3-aa47-56847db623c3',
+        // Page number for pagination
+        'page' => 1
+    ];
+
+    try {
+        $response = $sendbeeApi->getMessages($params);
+    } catch (\Sendbee\Api\Support\DataException $ex) {
+        // handle missing data
+        // this happens when required data was not provided
+        echo "Missing required data. ", $ex->getMessage();
+    } catch (\Exception $ex) {
+        // handle exception thrown by GuzzleHttp
+        // this is most likely due to a network issue
+        echo "Could not contact backend endpoint. ", $ex->getMessage();
+    }
+
+
+    if ($response->isSuccess()) {
+        // everything is OK
+        $data = $response->getData();
+
+        foreach ($data as $message) {
+            /**
+             * @var $message \Sendbee\Api\Models\Message
+             */
+            echo "\n sid: ", $message->sid;
+            echo "\n type: ", $message->type;
+            echo "\n body: ", $message->body;
+            echo "\n media_type: ", $message->media_type;
+            echo "\n media_url: ", $message->media_url;
+            echo "\n status: ", $message->status;
+            echo "\n direction: ", $message->direction;
+            echo "\n sent_at: ", $message->sent_at;
+
+        }
+    } else {
+        /**
+         * @var $error \Sendbee\Api\Transport\ResponseError
+         */
+        $error = $response->getError();
+        if ($error) {
+            echo "\n error type: ", $error->type;
+            echo "\n error details: ", $error->detail;
+        }
+    }
+```
+
 
 ### <a href='fetch-message-templates'>Fetch message templates</a>  
 
 ```php
+// optional parameters
+$params = [
+    'approved' => true | false, // Fetch approved or unapproved templates
+    'search_query' => '', // Filter by query string
+    'page' => 1 // Page number for pagination
+];
 
+try {
+    $response = $sendbeeApi->getMessageTemplates($params);
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+if ($response->isSuccess()) {
+    // everything is OK
+
+    $data = $response->getData();
+
+    foreach ($data as $messageTemplate) {
+        /**
+         * @var $messageTemplate \Sendbee\Api\Models\MessageTemplate
+         */
+        echo "\n ID: ", $messageTemplate->id;
+        echo "\n approved: ", $messageTemplate->approved;
+        echo "\n keyword: ", $messageTemplate->keyword;
+        echo "\n text: ", $messageTemplate->text;
+        echo "\n language: ", $messageTemplate->language;
+
+        foreach ($messageTemplate->tags as $tag) {
+            /**
+             * @var $tag \Sendbee\Api\Models\MessageTemplateTag
+             */
+            echo "\n tag -> name: ", $tag->name;
+        }
+    }
+} else {
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if ($error) {
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
+    }
+}
 ```
 
 ### <a href='send-template-message'>Send template message</a>  
 
 ```php
+$data = [
+        // phone number to send the message to, MANDATORY
+        'phone' => '+...',
+        // keyword of an existing template message you are using, MANDATORY
+        'template_keyword' => '...',
+        // language code of an existing template message you are using, MANDATORY
+        'language' => 'en',
+        // tags, key-value pairs of data that is injected in placeholders, MANDATORY
+        // example:
+        //   template message is 'Your order {{order}} has been dispatched. Please expect delivery by {{date}}'
+        //   tags are ['order' => 55, 'date' => '2020-12-12']
+        //   final message will be 'Your order 55 has been dispatched. Please expect delivery by 2020-12-12'
+        'tags' => []
+    ];
 
+    try {
+        $response = $sendbeeApi->sendMessageTemplate($data);
+    } catch (\Sendbee\Api\Support\DataException $ex) {
+        // handle missing data
+        // this happens when required data was not provided
+        echo "Missing required data. ", $ex->getMessage();
+    } catch (\Exception $ex) {
+        // handle exception thrown by GuzzleHttp
+        // this is most likely due to a network issue
+        echo "Could not contact backend endpoint. ", $ex->getMessage();
+    }
+
+    if ($response->isSuccess()) {
+        /**
+         * @var $messageInfo \Sendbee\Api\Models\SentMessage
+         */
+        $messageInfo = $response->getData();
+        // $messageInfo contains message information
+        print_r($messageInfo);
+    } else {
+        /**
+         * @var $error \Sendbee\Api\Transport\ResponseError
+         */
+        $error = $response->getError();
+        if ($error) {
+            // handle error
+            echo "\n error type: ", $error->type;
+            echo "\n error details: ", $error->detail;
+        }
+    }
 ```
 
 ### <a href='send-message'>Send message</a>  
@@ -459,7 +938,45 @@ Image: JPG/JPEG, PNG
 Documents: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX  
 
 ```php
+$data = [
+        // phone number to send the message to, MANDATORY
+        'phone' => '+...',
+        // message text, MANDATORY
+        'text' => '...',
+        // Media URL for media message
+        'media_url' => '',
+    ];
 
+    try {
+        $response = $sendbeeApi->sendMessage($data);
+    } catch (\Sendbee\Api\Support\DataException $ex) {
+        // handle missing data
+        // this happens when required data was not provided
+        echo "Missing required data. ", $ex->getMessage();
+    } catch (\Exception $ex) {
+        // handle exception thrown by GuzzleHttp
+        // this is most likely due to a network issue
+        echo "Could not contact backend endpoint. ", $ex->getMessage();
+    }
+
+    if ($response->isSuccess()) {
+        /**
+         * @var $messageInfo \Sendbee\Api\Models\SentMessage
+         */
+        $messageInfo = $response->getData();
+        // $messageInfo contains message information
+        print_r($messageInfo);
+    } else {
+        /**
+         * @var $error \Sendbee\Api\Transport\ResponseError
+         */
+        $error = $response->getError();
+        if ($error) {
+            // handle error
+            echo "\n error type: ", $error->type;
+            echo "\n error details: ", $error->detail;
+        }
+    }
 ```
 
 ### <a href='toggle-bot-for-conversation-with-contact-on-off'>Toggle bot for conversation with contact on off</a>  

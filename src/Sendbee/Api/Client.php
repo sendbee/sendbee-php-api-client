@@ -41,7 +41,6 @@ class Client extends BaseClient
      *
      * @param $contactData
      * @return Sendbee\Api\Transport\Response|string
-     * @throws GuzzleException
      * @throws Support\DataException
      */
     public function subscribeContact($contactData)
@@ -57,7 +56,6 @@ class Client extends BaseClient
      *
      * @param $contactData
      * @return ResponseInterface|Sendbee\Api\Transport\Response|null
-     * @throws GuzzleException
      * @throws Support\DataException
      */
     public function updateContact($contactData)
@@ -113,7 +111,7 @@ class Client extends BaseClient
      */
     public function updateTag($data)
     {
-        $requiredKeys = ['id'];
+        $requiredKeys = ['id', 'name'];
         $this->requireKeys($requiredKeys, $data);
 
         return $this->makeRequest('/contacts/tags', self::PUT, [], $data, ContactTag::class);
@@ -179,7 +177,7 @@ class Client extends BaseClient
      */
     public function updateContactField($data)
     {
-        $requiredKeys = ['id'];
+        $requiredKeys = ['id', 'name', 'type'];
         $this->requireKeys($requiredKeys, $data);
 
         return $this->makeRequest('/contacts/fields', self::PUT, [], $data, ContactField::class);
