@@ -60,6 +60,35 @@ class BaseClient
         return base64_encode($ts . '.' . $encrypted);
     }
 
+    public static function verifyToken($apiSecret, $token, $expiration_seconds = 0)
+    {
+        // sanity checks
+        if(!is_string($token) || !$token)
+        {
+            return false;
+        }
+
+        $decoded = base64_decode($token);
+        $parts = explode('.', $decoded);
+
+        if(count($parts) != 2)
+        {
+            return false;
+        }
+
+        if($expiration_seconds < 1)
+        {
+            $expiration_seconds = 60 * 15;
+        }
+        // check if still valid
+        if($parts[0] < (time() - $expiration_seconds))
+        {
+            return false;
+        }
+
+        return self::generateToken($apiSecret, $parts[0]) === $token;
+    }
+
     /**
      * Does the request to Sendbee API endpoint
      * Throws GuzzleException in case of a connection error that got no reply from endpoint
@@ -69,8 +98,9 @@ class BaseClient
      * @param string $method - HTTP method to use
      * @param array $query - query parameters
      * @param array $data - data to be sent
-     * @param string $modelClass - specify class for response
+     * @param string $modelClass - specify class for data
      * @return \Psr\Http\Message\ResponseInterface|Response|null
+     * @throws DataException
      */
     protected function makeRequest($path, $method = self::GET, $query = [], $data = [], $modelClass = '')
     {

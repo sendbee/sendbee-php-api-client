@@ -186,8 +186,7 @@ class Model
         }
 
         if (array_key_exists($key, $this->attributes)) {
-            $value = $this->attributes[$key]->get();
-            return $value ? $value : null;
+            return $this->attributes[$key]->get();
         }
 
         return null;

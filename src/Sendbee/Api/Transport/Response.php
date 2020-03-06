@@ -127,7 +127,7 @@ class Response
     }
 
     /**
-     * @return mixed
+     * @return null|ResponseMeta
      */
     public function getMeta()
     {
@@ -135,7 +135,7 @@ class Response
     }
 
     /**
-     * @return mixed
+     * @return null|ResponseLinks
      */
     public function getLinks()
     {
@@ -143,7 +143,7 @@ class Response
     }
 
     /**
-     * @return mixed
+     * @return null|FieldText
      */
     public function getWarning()
     {

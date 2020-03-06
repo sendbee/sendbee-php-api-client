@@ -51,22 +51,21 @@
 
 #### Mics  
 
+-   [Pagination](#pagination)  
 -   [Exception handling](#exception-handling)  
 -   [Authenticate webhook request](#authenticate-webhook-request)  
--   [Warnings](#warnings)  
--   [Debugging](#debugging)  
 -   [Official Documentation](http://developer.sendbee.io)  
 
 ## <a href='installation'>Installation</a>  
 
 The recommended way to install Sendbee API is with [Composer](https://getcomposer.org/).
 
-#### 1. Install Composer
+### 1. Install Composer
 ```bash
 curl -sS https://getcomposer.org/installer | php
 ```
 
-#### 2. Install Sendbee API using Composer
+### 2. Install Sendbee API using Composer
 
 ##### 2.a Using Composer CLI
 You can add Sendbee API as a dependency using the composer.phar CLI:
@@ -117,11 +116,11 @@ To initialize the API client, you'll need a public key and secret. That data is 
 $sendbeeApi = new \Sendbee\Api\Client($public_key, $secret);
 ```
 
+## Contacts
+
 ### <a href='fetch-contacts'>Fetch contacts</a>  
 
 ```php
-$sendbeeApi = new \Sendbee\Api\Client($public_key, $secret);
-
 // optional parameters
 $params = [
     'tags' => '', // Filter contacts by tag
@@ -357,6 +356,8 @@ if ($response->isSuccess()) {
 }
 ```
 
+## Contact tags
+
 ### <a href='fetch-tags'>Fetch tags</a>  
 
 ```php
@@ -524,6 +525,8 @@ if ($response->isSuccess()) {
     }
 }
 ```
+
+## Contact fields
 
 ### <a href='fetch-contact-fields'>Fetch contact fields</a>  
 
@@ -713,6 +716,8 @@ if ($response->isSuccess()) {
 }
 ```
 
+## Conversations and messages
+
 ### <a href='fetch-conversations'>Fetch conversations</a>  
 
 ```php
@@ -825,6 +830,7 @@ if ($response->isSuccess()) {
     }
 ```
 
+## Sending messages
 
 ### <a href='fetch-message-templates'>Fetch message templates</a>  
 
@@ -979,25 +985,168 @@ $data = [
     }
 ```
 
+## Automation
+
 ### <a href='toggle-bot-for-conversation-with-contact-on-off'>Toggle bot for conversation with contact on off</a>  
 
 Every contact is linked with conversation with an agent.  
 Conversation could be handled by an agent or a bot (automation).  
 Every time a message has been sent to a contact by an agent or using the API, the bot is automatically turned off for that conversation.  
-But there is always a use case when you need to turn it on or off manually.  
+Use the example below to change the chatbot status based on your use case.
 
 ```php
+$data = [
+    // conversation_id, MANDATORY
+    'conversation_id' => '...',
+    // boolean value, true to enable chatbot, false to disable, MANDATORY
+    'active' => true | false
+];
+
+try {
+    $response = $sendbeeApi->chatbotActivity($data);
+} catch (\Sendbee\Api\Support\DataException $ex) {
+    // handle missing data
+    // this happens when required data was not provided
+    echo "Missing required data. ", $ex->getMessage();
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+if ($response->isSuccess()) {
+    /**
+     * @var $tag \Sendbee\Api\Models\ServerMessage
+     */
+    $message = $response->getData();
+    // chatbot activity is now set
+    // $message contains server info message
+    print_r($message);
+
+} else {
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if ($error) {
+        // handle error
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
+    }
+}
+```
+
+
+## Misc
+
+### <a href='pagination'>Response</a>
+
+All API methods return a `Sendbee\Api\Transport\Response` object.
+Only exception is when some required parameter is missing or there are network issues - in that case an exception is thrown.
+
+The response object wraps the raw server response into corresponding objects and exposes methods to inspect received data.
+
+
+```php
+/**
+ * @var $response \Sendbee\Api\Transport\Response
+ */
+$response = $sendbeeApi->getContacts();
+
+// check if request was successful
+$success = $response->isSuccess();
+
+// get HTTP status code the server returned
+$statusCode = $response->getHttpStatus();
+
+// get data wrapped into appropriate object(s)
+$data = $response->getData();
+
+// get pagination data (when available)
+$pagination = $response->getMeta();
+
+// get error if API call failed
+$error = $response->getError();
+
+// get a warning message sent by API (when available)
+$warning = $response->getWarning();
+
+// if you prefer to deal with the raw server response, that is available as well
+$rawResponseString = $response->getRawBody();
+```
+
+
+### <a href='pagination'>Pagination</a>
+
+Pagination is available on all client methods that accept a `page` parameter. Those methods are:
+
+- getContacts()
+- getTags()
+- getContactFields()
+- getConversations()
+- getMessages()
+- getMessageTemplates()
+
+To get the first page of results you can omit the `page` parameter or set it to `1`
+```php
+$sendbeeApi->getContacts(['page' => 1]);
+$sendbeeApi->getTags(['page' => 1]);
+$sendbeeApi->getContactFields(['page' => 1]);
+$sendbeeApi->getConversations(['page' => 1]);
+$sendbeeApi->getMessages(['page' => 1, 'conversation_id' => '...']);
+$sendbeeApi->getMessageTemplates(['page' => 1]);
+```
+
+Calling API methods that get a list of resources will return a `Sendbee\Api\Transport\Response` object containing pagination. 
+Calling `getMeta()` on it will return pagination information.
+
+```php
+
+/**
+ * @var $response \Sendbee\Api\Transport\Response
+ */
+$response = $sendbeeApi->getContacts();
+
+$pagination = $response->getMeta();
+
+echo "\n Total records: ",              $pagination->total;
+echo "\n Current records from: ",       $pagination->from;
+echo "\n Current records to: ",         $pagination->to;
+echo "\n Current page: ",               $pagination->current_page;
+echo "\n Last page: ",                  $pagination->last_page;
+echo "\n How many records per page: ",  $pagination->per_page;
 
 ```
 
 ### <a href='exception-handling'>Exception handling</a>  
 
-Every time something is not as it should be, like parameter is missing, parameter value is invalid, authentication fails, etc, API returns a http status code accordingly and an error message.  
-By using this client library, an error message is detected and taken, and an exception is raised, so you can handle it like this:  
+Sendbee API client for PHP will throw an Exception is some required data is missing or it is unable to connect to Sendbee.
+You should wrap API calls in a try-catch block and handle thrown exceptions.
+
+You should only encounter 2 types of exceptions:
+- `\Sendbee\Api\Support\DataException` - Thrown when required data is missing. Message contains more information.
+
+- `\GuzzleHttp\Exception\GuzzleException` - Thrown by underlying GuzzleHttp library. Indicates Sendbee backend is unavailable/unreachable
 
 ```php
+// example of exception checking when calling some API method
+// in this example, we are trying to create a new tag
 
-```    
+$data = [];
+
+try {
+    $response = $sendbeeApi->createTag($data);
+} catch (\Sendbee\Api\Support\DataException $ex) {
+    // handle missing data
+    // this happens when required data was not provided
+    echo "Missing required data. ", $ex->getMessage();
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+```
 
 ### <a href='authenticate-webhook-request'>Authenticate webhook request</a>  
 
@@ -1016,24 +1165,6 @@ To authenticate requests that we make to your webhook URL, take this token from 
 
 ```php
 
-```  
-
-### <a href='warnings'>Warnings</a>  
-
-Sometimes APi returns a worning so you could be warned about something.  
-The waning is displayed in standard output:  
-
-![Debugging](docs/images/warning.png)  
-
-### <a href='debugging'>Debugging</a>  
-
-This library has it's own internal debugging tool.  
-By default it is disabled, and to enable it, pass the `debug` parameter:  
-
-```php
+$requestIsValid = \Sendbee\Api\Client::verifyToken($secret, $token);
 
 ```  
-
-Once you enabled the internal debug tool, every request to API will output various request and response data in standard output:  
-
-![Debugging](docs/images/debugging.png)   

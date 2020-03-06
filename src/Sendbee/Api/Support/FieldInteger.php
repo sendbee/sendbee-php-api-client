@@ -7,7 +7,7 @@ namespace Sendbee\Api\Support;
 class FieldInteger
 {
     protected $value;
-    public function __construct($defaultValue = null)
+    public function __construct($defaultValue = 0)
     {
         $this->set($defaultValue);
     }
