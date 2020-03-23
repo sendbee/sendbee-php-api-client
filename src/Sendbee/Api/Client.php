@@ -22,6 +22,7 @@ class Client extends BaseClient
      *
      * @param array $data
      * @return ResponseInterface|Transport\Response|null
+     * @throws Support\DataException
      */
     public function getContacts($data = [])
     {
@@ -71,7 +72,7 @@ class Client extends BaseClient
      *
      * @param array $params
      * @return Sendbee\Api\Transport\Response|string
-     * @throws GuzzleException
+     * @throws Support\DataException
      */
     public function getTags($params = [])
     {
