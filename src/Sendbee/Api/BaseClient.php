@@ -110,7 +110,7 @@ class BaseClient
             'base_uri' => self::$baseURL,
             'timeout' => 2.0,
             'headers' => [
-                'User-Agent' => 'testing/1.0',
+                'User-Agent' => 'Sendbee PHP API Client',
                 "X-Auth-Token" => $authToken,
                 'X-Api-Key' => $this->api_key,
                 "Accept" => "application/json",

@@ -467,7 +467,7 @@ if ($response->isSuccess()) {
      * @var $tag \Sendbee\Api\Models\ContactTag
      */
     $tag = $response->getData();
-    // tag is now created
+    // tag is now updated
     // $tag contains the updated tag data
     print_r($tag);
     
@@ -780,54 +780,54 @@ if ($response->isSuccess()) {
 
 ```php
 // parameters
-    $params = [
-        // Conversation UUID, MANDATORY
-        'conversation_id' => '10d4c5ce-9a99-48a3-aa47-56847db623c3',
-        // Page number for pagination
-        'page' => 1
-    ];
+$params = [
+    // Conversation UUID, MANDATORY
+    'conversation_id' => '...',
+    // Page number for pagination
+    'page' => 1
+];
 
-    try {
-        $response = $sendbeeApi->getMessages($params);
-    } catch (\Sendbee\Api\Support\DataException $ex) {
-        // handle missing data
-        // this happens when required data was not provided
-        echo "Missing required data. ", $ex->getMessage();
-    } catch (\Exception $ex) {
-        // handle exception thrown by GuzzleHttp
-        // this is most likely due to a network issue
-        echo "Could not contact backend endpoint. ", $ex->getMessage();
-    }
+try {
+    $response = $sendbeeApi->getMessages($params);
+} catch (\Sendbee\Api\Support\DataException $ex) {
+    // handle missing data
+    // this happens when required data was not provided
+    echo "Missing required data. ", $ex->getMessage();
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
 
 
-    if ($response->isSuccess()) {
-        // everything is OK
-        $data = $response->getData();
+if ($response->isSuccess()) {
+    // everything is OK
+    $data = $response->getData();
 
-        foreach ($data as $message) {
-            /**
-             * @var $message \Sendbee\Api\Models\Message
-             */
-            echo "\n sid: ", $message->sid;
-            echo "\n type: ", $message->type;
-            echo "\n body: ", $message->body;
-            echo "\n media_type: ", $message->media_type;
-            echo "\n media_url: ", $message->media_url;
-            echo "\n status: ", $message->status;
-            echo "\n direction: ", $message->direction;
-            echo "\n sent_at: ", $message->sent_at;
-
-        }
-    } else {
+    foreach ($data as $message) {
         /**
-         * @var $error \Sendbee\Api\Transport\ResponseError
+         * @var $message \Sendbee\Api\Models\Message
          */
-        $error = $response->getError();
-        if ($error) {
-            echo "\n error type: ", $error->type;
-            echo "\n error details: ", $error->detail;
-        }
+        echo "\n sid: ", $message->sid;
+        echo "\n type: ", $message->type;
+        echo "\n body: ", $message->body;
+        echo "\n media_type: ", $message->media_type;
+        echo "\n media_url: ", $message->media_url;
+        echo "\n status: ", $message->status;
+        echo "\n direction: ", $message->direction;
+        echo "\n sent_at: ", $message->sent_at;
+
     }
+} else {
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if ($error) {
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
+    }
+}
 ```
 
 ## Sending messages
@@ -888,50 +888,50 @@ if ($response->isSuccess()) {
 
 ```php
 $data = [
-        // phone number to send the message to, MANDATORY
-        'phone' => '+...',
-        // keyword of an existing template message you are using, MANDATORY
-        'template_keyword' => '...',
-        // language code of an existing template message you are using, MANDATORY
-        'language' => 'en',
-        // tags, key-value pairs of data that is injected in placeholders, MANDATORY
-        // example:
-        //   template message is 'Your order {{order}} has been dispatched. Please expect delivery by {{date}}'
-        //   tags are ['order' => 55, 'date' => '2020-12-12']
-        //   final message will be 'Your order 55 has been dispatched. Please expect delivery by 2020-12-12'
-        'tags' => []
-    ];
+    // phone number to send the message to, MANDATORY
+    'phone' => '+...',
+    // keyword of an existing template message you are using, MANDATORY
+    'template_keyword' => '...',
+    // language code of an existing template message you are using, MANDATORY
+    'language' => 'en',
+    // tags, key-value pairs of data that is injected in placeholders, MANDATORY
+    // example:
+    //   template message is 'Your order {{order}} has been dispatched. Please expect delivery by {{date}}'
+    //   tags are ['order' => 55, 'date' => '2020-12-12']
+    //   final message will be 'Your order 55 has been dispatched. Please expect delivery by 2020-12-12'
+    'tags' => []
+];
 
-    try {
-        $response = $sendbeeApi->sendMessageTemplate($data);
-    } catch (\Sendbee\Api\Support\DataException $ex) {
-        // handle missing data
-        // this happens when required data was not provided
-        echo "Missing required data. ", $ex->getMessage();
-    } catch (\Exception $ex) {
-        // handle exception thrown by GuzzleHttp
-        // this is most likely due to a network issue
-        echo "Could not contact backend endpoint. ", $ex->getMessage();
-    }
+try {
+    $response = $sendbeeApi->sendMessageTemplate($data);
+} catch (\Sendbee\Api\Support\DataException $ex) {
+    // handle missing data
+    // this happens when required data was not provided
+    echo "Missing required data. ", $ex->getMessage();
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
 
-    if ($response->isSuccess()) {
-        /**
-         * @var $messageInfo \Sendbee\Api\Models\SentMessage
-         */
-        $messageInfo = $response->getData();
-        // $messageInfo contains message information
-        print_r($messageInfo);
-    } else {
-        /**
-         * @var $error \Sendbee\Api\Transport\ResponseError
-         */
-        $error = $response->getError();
-        if ($error) {
-            // handle error
-            echo "\n error type: ", $error->type;
-            echo "\n error details: ", $error->detail;
-        }
+if ($response->isSuccess()) {
+    /**
+     * @var $messageInfo \Sendbee\Api\Models\SentMessage
+     */
+    $messageInfo = $response->getData();
+    // $messageInfo contains message information
+    print_r($messageInfo);
+} else {
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if ($error) {
+        // handle error
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
     }
+}
 ```
 
 ### <a href='send-message'>Send message</a>  
@@ -945,44 +945,44 @@ Documents: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX
 
 ```php
 $data = [
-        // phone number to send the message to, MANDATORY
-        'phone' => '+...',
-        // message text, MANDATORY
-        'text' => '...',
-        // Media URL for media message
-        'media_url' => '',
-    ];
+    // phone number to send the message to, MANDATORY
+    'phone' => '+...',
+    // message text, MANDATORY
+    'text' => '...',
+    // Media URL for media message
+    'media_url' => '',
+];
 
-    try {
-        $response = $sendbeeApi->sendMessage($data);
-    } catch (\Sendbee\Api\Support\DataException $ex) {
-        // handle missing data
-        // this happens when required data was not provided
-        echo "Missing required data. ", $ex->getMessage();
-    } catch (\Exception $ex) {
-        // handle exception thrown by GuzzleHttp
-        // this is most likely due to a network issue
-        echo "Could not contact backend endpoint. ", $ex->getMessage();
-    }
+try {
+    $response = $sendbeeApi->sendMessage($data);
+} catch (\Sendbee\Api\Support\DataException $ex) {
+    // handle missing data
+    // this happens when required data was not provided
+    echo "Missing required data. ", $ex->getMessage();
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
 
-    if ($response->isSuccess()) {
-        /**
-         * @var $messageInfo \Sendbee\Api\Models\SentMessage
-         */
-        $messageInfo = $response->getData();
-        // $messageInfo contains message information
-        print_r($messageInfo);
-    } else {
-        /**
-         * @var $error \Sendbee\Api\Transport\ResponseError
-         */
-        $error = $response->getError();
-        if ($error) {
-            // handle error
-            echo "\n error type: ", $error->type;
-            echo "\n error details: ", $error->detail;
-        }
+if ($response->isSuccess()) {
+    /**
+     * @var $messageInfo \Sendbee\Api\Models\SentMessage
+     */
+    $messageInfo = $response->getData();
+    // $messageInfo contains message information
+    print_r($messageInfo);
+} else {
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if ($error) {
+        // handle error
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
     }
+}
 ```
 
 ## Automation
