@@ -149,12 +149,9 @@ if ($response->isSuccess()) {
         echo "\n ID: ", $contact->id;
         echo "\n name: ", $contact->name;
         echo "\n phone: ", $contact->phone;
-        echo "\n email: ", $contact->email;
         echo "\n created_at: ", $contact->created_at;
         echo "\n status: ", $contact->status;
         echo "\n folder: ", $contact->folder;
-        echo "\n facebook_link: ", $contact->facebook_link;
-        echo "\n twitter_link: ", $contact->twitter_link;
 
         foreach ($contact->tags as $tag) {
             /**
@@ -210,22 +207,10 @@ $contactData = [
     // contact name
     'name' => '...',
 
-    // contact email
-    'email' => '...',
-
-    // contact address
-    'address' => '...',
-
     // contact fields
     // contact fields must be pre-created in Sendbee Dashboard
     // any non-existent field will be ignored
     'contact_fields' => ['key' => 'value'],
-
-    // contact facebook link
-    'facebook_link' => '...',
-
-    // contact twitter link
-    'twitter_link' => '...',
 
     // your notes about subscriber
     'notes' => ['...'],
@@ -290,22 +275,10 @@ $contactData = [
     // contact name
     'name' => '...',
 
-    // contact email
-    'email' => '...',
-
-    // contact address
-    'address' => ['line' => '...', 'city' => '...', 'postal_code' => '...'],
-
     // contact fields
     // contact fields must be pre-created in Sendbee Dashboard
     // any non-existent field will be ignored
     'contact_fields' => ['...' => '...'],
-
-    // contact facebook link
-    'facebook_link' => '...',
-
-    // contact twitter link
-    'twitter_link' => '...',
 
     // your notes about subscriber
     // TAKE CARE, notes are not replaced but are instead appended to existing notes
@@ -554,7 +527,6 @@ if ($response->isSuccess()) {
          * @var $tag \Sendbee\Api\Models\ContactField
          */
         echo "\n ID: ", $field->id;
-        echo "\n slug: ", $field->slug;
         echo "\n type: ", $field->type;
         echo "\n name: ", $field->name;
 
