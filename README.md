@@ -923,6 +923,8 @@ $data = [
     'text' => '...',
     // Media URL for media message
     'media_url' => '',
+    // Set to true to disable turning-off chatbot
+    'prevent_bot_off' => true,
 ];
 
 try {
@@ -963,7 +965,10 @@ if ($response->isSuccess()) {
 
 Every contact is linked with conversation with an agent.  
 Conversation could be handled by an agent or a bot (automation).  
-Every time a message has been sent to a contact by an agent or using the API, the bot is automatically turned off for that conversation.  
+Every time a message has been sent to a contact by an agent or using the API, 
+the bot is automatically turned off for that conversation - except when you set 
+'prevent_bot_off' to true via API call (see [Send message](#send-message)).
+
 Use the example below to change the chatbot status based on your use case.
 
 ```php
