@@ -14,6 +14,7 @@ use Sendbee\Api\Models\Message;
 use Sendbee\Api\Models\MessageTemplate;
 use Sendbee\Api\Models\SentMessage;
 use Sendbee\Api\Models\ServerMessage;
+use Sendbee\Api\Support\DataException;
 
 class Client extends BaseClient
 {
@@ -140,6 +141,7 @@ class Client extends BaseClient
      * @param array $params
      * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
+     * @throws DataException
      */
     public function getContactFields($params = [])
     {
@@ -206,6 +208,7 @@ class Client extends BaseClient
      * @param array $params
      * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
+     * @throws DataException
      */
     public function getConversations($params = [])
     {
@@ -259,6 +262,7 @@ class Client extends BaseClient
             'phone', // Contact's phone number
             'text', // Message text
             'media_url', // Media URL for media message
+            'prevent_bot_off' // set to true to prevent turning-off chatbot
         ];
 
         $data = $this->filterKeys($validParams, $params);
@@ -272,6 +276,7 @@ class Client extends BaseClient
      * @param array $params
      * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
+     * @throws DataException
      */
     public function getMessageTemplates($params = [])
     {
