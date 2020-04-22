@@ -862,16 +862,22 @@ if ($response->isSuccess()) {
 $data = [
     // phone number to send the message to, MANDATORY
     'phone' => '+...',
+    
     // keyword of an existing template message you are using, MANDATORY
     'template_keyword' => '...',
+    
     // language code of an existing template message you are using, MANDATORY
     'language' => 'en',
+    
     // tags, key-value pairs of data that is injected in placeholders, MANDATORY
     // example:
     //   template message is 'Your order {{order}} has been dispatched. Please expect delivery by {{date}}'
     //   tags are ['order' => 55, 'date' => '2020-12-12']
     //   final message will be 'Your order 55 has been dispatched. Please expect delivery by 2020-12-12'
-    'tags' => []
+    'tags' => [],
+    
+    // Set to true to disable turning-off chatbot
+    'prevent_bot_off' => true,
 ];
 
 try {
