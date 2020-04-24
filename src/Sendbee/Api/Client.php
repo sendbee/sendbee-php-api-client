@@ -6,6 +6,7 @@ namespace Sendbee\Api;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\ResponseInterface;
 
+use Sendbee\Api\Models\ChatbotStatus;
 use Sendbee\Api\Models\Contact;
 use Sendbee\Api\Models\ContactField;
 use Sendbee\Api\Models\ContactTag;
@@ -320,6 +321,14 @@ class Client extends BaseClient
         $this->requireKeys($requiredKeys, $data);
 
         return $this->makeRequest('/automation/chatbot/activity', self::PUT, [], $data, ServerMessage::class);
+    }
+
+    public function getChatbotActivity($data)
+    {
+        $requiredKeys = ['conversation_id'];
+        $this->requireKeys($requiredKeys, $data);
+
+        return $this->makeRequest('/automation/chatbot/activity/status', self::GET, $data, [], ChatbotStatus::class);
     }
 
 }

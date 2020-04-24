@@ -1019,6 +1019,50 @@ if ($response->isSuccess()) {
 }
 ```
 
+### <a href='#bot-status'>Get chatbot (automated responses) status</a>
+You can also check if chatbot is turned on or off for a conversation.    
+
+```php
+
+$data = [
+    // conversation_id, MANDATORY
+    'conversation_id' => '...'
+];
+
+try {
+    $response = $sendbeeApi->getChatbotActivity($data);
+} catch (\Sendbee\Api\Support\DataException $ex) {
+    // handle missing data
+    // this happens when required data was not provided
+    echo "Missing required data. ", $ex->getMessage();
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+if ($response->isSuccess()) {
+    /**
+     * @var $status \Sendbee\Api\Models\ChatbotStatus
+     */
+    $status = $response->getData();
+    
+    echo "\n conversation_id: ", $status->text;
+    echo "\n chatbot_active: ", $status->chatbot_active ? 'ON' : 'OFF';
+
+} else {
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if ($error) {
+        // handle error
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
+    }
+}
+
+```
 
 ## Misc
 
