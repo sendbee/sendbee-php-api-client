@@ -1020,7 +1020,7 @@ if ($response->isSuccess()) {
 }
 ```
 
-### <a href='#bot-status'>Get chatbot (automated responses) status</a>
+### <a href='bot-status'>Get chatbot (automated responses) status</a>
 You can also check if chatbot is turned on or off for a conversation.    
 
 ```php
