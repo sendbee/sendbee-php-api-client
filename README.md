@@ -48,7 +48,7 @@
 #### Automation  
 
 -   [Toggle bot for conversation with contact on off](#Toggle-bot-for-conversation-with-contact-on-off)
--   [Get chatbot (automated responses) status](#bot-status)  
+-   [Get chatbot (automated responses) status](#get-chatbot-automated-responses-status)  
 
 #### Mics  
 
