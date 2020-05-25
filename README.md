@@ -39,6 +39,11 @@
 -   [Fetch conversations](#fetch-conversations)  
 -   [Fetch messages](#fetch-messages)  
 
+#### Teams
+
+-   [Fetch teams](#fetch-teams)
+-   [Fetch team members](#fetch-team-members)
+
 #### Messages  
 
 -   [Fetch message templates](#fetch-message-templates)  
@@ -56,7 +61,7 @@
 -   [Authenticate webhook request](#authenticate-webhook-request)  
 -   [Official Documentation](http://developer.sendbee.io)  
 
-## <a href='installation'>Installation</a>  
+## <a name='installation'>Installation</a>  
 
 The recommended way to install Sendbee API is with [Composer](https://getcomposer.org/).
 
@@ -99,7 +104,7 @@ composer update
 
 ## Usage  
 
-### <a href='initialization'>Autoload</a>  
+### <a name='initialization'>Autoload</a>  
 After installing, you need to require Composer's autoloader:
 ```php
 require 'vendor/autoload.php';
@@ -108,7 +113,7 @@ require 'vendor/autoload.php';
 You can find out more on how to install Composer, configure autoloading, and other best-practices for defining dependencies at [Composer](https://getcomposer.org/).
 
 
-### <a href='initialization'>Initialization</a>  
+### <a name='initialization'>Initialization</a>  
 
 To initialize the API client, you'll need a public key and secret. That data is available in your Sendbee dashboard.
 
@@ -118,7 +123,7 @@ $sendbeeApi = new \Sendbee\Api\Client($public_key, $secret);
 
 ## Contacts
 
-### <a href='fetch-contacts'>Fetch contacts</a>  
+### <a name='fetch-contacts'>Fetch contacts</a>  
 
 ```php
 // optional parameters
@@ -191,7 +196,7 @@ if ($response->isSuccess()) {
 }
 ```
 
-### <a href='subscribe-contact'>Subscribe contact</a>  
+### <a name='subscribe-contact'>Subscribe contact</a>  
 
 ```php
 $contactData = [
@@ -259,7 +264,7 @@ if ($response->isSuccess()) {
 }
 ```
 
-### <a href='update-contact'>Update contact</a>  
+### <a name='update-contact'>Update contact</a>  
 
 ```php
 $contactData = [
@@ -331,7 +336,7 @@ if ($response->isSuccess()) {
 
 ## Contact tags
 
-### <a href='fetch-tags'>Fetch tags</a>  
+### <a name='fetch-tags'>Fetch tags</a>  
 
 ```php
 // optional parameters
@@ -372,7 +377,7 @@ if ($response->isSuccess()) {
 }
 ```
 
-### <a href='create-tag'>Create tag</a>  
+### <a name='create-tag'>Create tag</a>  
 
 ```php
 $data = [
@@ -413,7 +418,7 @@ if ($response->isSuccess()) {
 }
 ```
 
-### <a href='update-tag'>Update tag</a>  
+### <a name='update-tag'>Update tag</a>  
 
 ```php
 $data = [
@@ -457,7 +462,7 @@ if ($response->isSuccess()) {
 }
 ```
 
-### <a href='delete-tag'>Delete tag</a>  
+### <a name='delete-tag'>Delete tag</a>  
 
 ```php
 $data = [
@@ -501,7 +506,7 @@ if ($response->isSuccess()) {
 
 ## Contact fields
 
-### <a href='fetch-contact-fields'>Fetch contact fields</a>  
+### <a name='fetch-contact-fields'>Fetch contact fields</a>  
 
 ```php
 $params = [
@@ -551,7 +556,7 @@ if ($response->isSuccess()) {
 }
 ```
 
-### <a href='create-contact-field'>Create contact field</a>  
+### <a name='create-contact-field'>Create contact field</a>  
 
 ```php
 $data = [
@@ -597,7 +602,7 @@ if ($response->isSuccess()) {
 }
 ```
 
-### <a href='update-contact-field'>Update contact field</a>  
+### <a name='update-contact-field'>Update contact field</a>  
 
 ```php
 $data = [
@@ -646,7 +651,7 @@ if ($response->isSuccess()) {
 }
 ```
 
-### <a href='delete-contact-field'>Delete contact field</a>  
+### <a name='delete-contact-field'>Delete contact field</a>  
 
 ```php
 $data = [
@@ -690,7 +695,7 @@ if ($response->isSuccess()) {
 
 ## Conversations and messages
 
-### <a href='fetch-conversations'>Fetch conversations</a>  
+### <a name='fetch-conversations'>Fetch conversations</a>  
 
 ```php
 // optional parameters
@@ -748,7 +753,7 @@ if ($response->isSuccess()) {
 }
 ```
 
-### <a href='fetch-messages'>Fetch messages in a conversation</a>  
+### <a name='fetch-messages'>Fetch messages in a conversation</a>  
 
 ```php
 // parameters
@@ -804,7 +809,7 @@ if ($response->isSuccess()) {
 
 ## Sending messages
 
-### <a href='fetch-message-templates'>Fetch message templates</a>  
+### <a name='fetch-message-templates'>Fetch message templates</a>  
 
 ```php
 // optional parameters
@@ -856,7 +861,7 @@ if ($response->isSuccess()) {
 }
 ```
 
-### <a href='send-template-message'>Send template message</a>  
+### <a name='send-template-message'>Send template message</a>  
 
 ```php
 $data = [
@@ -912,7 +917,7 @@ if ($response->isSuccess()) {
 }
 ```
 
-### <a href='send-message'>Send message</a>  
+### <a name='send-message'>Send message</a>  
 
 You can send either text message or media message.  
 For media message, following formats are supported:  
@@ -965,9 +970,133 @@ if ($response->isSuccess()) {
 }
 ```
 
+
+## Teams
+
+### <a name='fetch-teams'>Fetch teams</a>
+
+```php
+$params = [
+    // Filter teams by member UUID - optional
+    'member_id' => '...', 
+    // Page number for pagination
+    'page' => 1 
+];
+
+try {
+    $response = $sendbeeApi->getTeams($params);
+} catch (\Sendbee\Api\Support\DataException $ex) {
+    // handle missing data
+    // this happens when required data was not provided
+    echo "Missing required data. ", $ex->getMessage();
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+
+if ($response->isSuccess()) {
+    // everything is OK
+    $data = $response->getData();
+
+    foreach ($data as $team) {
+        /**
+         * @var $team \Sendbee\Api\Models\Team
+         */
+        echo "\n id: ", $team->id;
+        echo "\n name: ", $team->name;
+
+        foreach ($team->members as $member) {
+            /**
+             * @var $member \Sendbee\Api\Models\TeamMember
+             */
+
+            echo "\n member -> id: ", $member->id;
+            echo "\n member -> name: ", $member->name;
+            echo "\n member -> role: ", $member->role;
+            echo "\n member -> online: ", $member->online;
+            echo "\n member -> available: ", $member->available;
+        }
+
+
+    }
+} else {
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if ($error) {
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
+    }
+}
+
+```
+
+### <a name='fetch-team-members'>Fetch team members</a>
+
+```php
+
+$params = [
+    // Filter members by team UUID - optional
+    'team_id' => '...', 
+    // Page number for pagination
+    'page' => 1 
+];
+
+try {
+    $response = $sendbeeApi->getMembers($params);
+} catch (\Sendbee\Api\Support\DataException $ex) {
+    // handle missing data
+    // this happens when required data was not provided
+    echo "Missing required data. ", $ex->getMessage();
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+
+if ($response->isSuccess()) {
+    // everything is OK
+    $data = $response->getData();
+
+    foreach ($data as $member) {
+        /**
+         * @var $member \Sendbee\Api\Models\Member
+         */
+        echo "\n id: ", $member->id;
+        echo "\n name: ", $member->name;
+        echo "\n role: ", $member->role;
+        echo "\n online: ", $member->online;
+        echo "\n available: ", $member->available;
+
+        foreach ($member->teams as $team) {
+            /**
+             * @var $team \Sendbee\Api\Models\MemberTeam
+             */
+
+            echo "\n member -> id: ", $team->id;
+            echo "\n member -> name: ", $team->name;
+        }
+    }
+} else {
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if ($error) {
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
+    }
+}
+```
+
+
 ## Automation
 
-### <a href='toggle-bot-for-conversation-with-contact-on-off'>Toggle bot for conversation with contact on off</a>  
+### <a name='toggle-bot-for-conversation-with-contact-on-off'>Toggle bot for conversation with contact on off</a>  
 
 Every contact is linked with conversation with an agent.  
 Conversation could be handled by an agent or a bot (automation).  
@@ -1019,7 +1148,7 @@ if ($response->isSuccess()) {
 }
 ```
 
-### <a href='#bot-status'>Get chatbot (automated responses) status</a>
+### <a name='bot-status'>Get chatbot (automated responses) status</a>
 You can also check if chatbot is turned on or off for a conversation.    
 
 ```php
@@ -1066,7 +1195,7 @@ if ($response->isSuccess()) {
 
 ## Misc
 
-### <a href='pagination'>Response</a>
+### <a name='pagination'>Response</a>
 
 All API methods return a `Sendbee\Api\Transport\Response` object.
 Only exception is when some required parameter is missing or there are network issues - in that case an exception is thrown.
@@ -1103,7 +1232,7 @@ $rawResponseString = $response->getRawBody();
 ```
 
 
-### <a href='pagination'>Pagination</a>
+### <a name='pagination'>Pagination</a>
 
 Pagination is available on all client methods that accept a `page` parameter. Those methods are:
 
@@ -1145,7 +1274,7 @@ echo "\n How many records per page: ",  $pagination->per_page;
 
 ```
 
-### <a href='exception-handling'>Exception handling</a>  
+### <a name='exception-handling'>Exception handling</a>  
 
 Sendbee API client for PHP will throw an Exception is some required data is missing or it is unable to connect to Sendbee.
 You should wrap API calls in a try-catch block and handle thrown exceptions.
@@ -1175,7 +1304,7 @@ try {
 
 ```
 
-### <a href='authenticate-webhook-request'>Authenticate webhook request</a>  
+### <a name='authenticate-webhook-request'>Authenticate webhook request</a>  
 
 After activating your webhook URL in Sendbee Dashboard, we will start sending requests on that URL depending on which webhook type is linked with that webhook URL.  
 Every request that we make will have authorization token in header, like this:  

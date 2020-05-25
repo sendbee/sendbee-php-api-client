@@ -11,10 +11,12 @@ use Sendbee\Api\Models\Contact;
 use Sendbee\Api\Models\ContactField;
 use Sendbee\Api\Models\ContactTag;
 use Sendbee\Api\Models\Conversation;
+use Sendbee\Api\Models\Member;
 use Sendbee\Api\Models\Message;
 use Sendbee\Api\Models\MessageTemplate;
 use Sendbee\Api\Models\SentMessage;
 use Sendbee\Api\Models\ServerMessage;
+use Sendbee\Api\Models\Team;
 use Sendbee\Api\Support\DataException;
 
 class Client extends BaseClient
@@ -306,6 +308,45 @@ class Client extends BaseClient
 
         return $this->makeRequest('/conversations/messages/templates/send', self::POST, [], $data, SentMessage::class);
     }
+
+    /**
+     * Get teams
+     *
+     * @param array $params
+     * @return ResponseInterface|Transport\Response|null
+     * @throws DataException
+     */
+    public function getTeams($params = [])
+    {
+        $validParams = [
+            'member_id', // optional member ID
+            'page' // Page number for pagination
+        ];
+
+        $query = $this->filterKeys($validParams, $params);
+        return $this->makeRequest('/teams/teams', self::GET, $query, [], Team::class);
+    }
+
+    /**
+     * Get members of a team or business
+     *
+     * @param array $params
+     * @return ResponseInterface|Transport\Response|null
+     * @throws DataException
+     */
+    public function getMembers($params = [])
+    {
+        $validParams = [
+            'team_id', //
+            'page' // Page number for pagination
+        ];
+
+        $query = $this->filterKeys($validParams, $params);
+        return $this->makeRequest('/teams/members', self::GET, $query, [], Member::class);
+    }
+
+
+
 
     /**
      * Enable or disable chatbot for a conversation
