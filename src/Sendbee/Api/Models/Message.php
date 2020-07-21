@@ -10,7 +10,6 @@ use Sendbee\Api\Support\Model;
  * Class Message
  * @package Sendbee\Api\Models
  *
- * @property string $type Message type
  * @property string $body Message body
  * @property string $media_type Message media type
  * @property string $media_url Media URL
@@ -22,8 +21,6 @@ class Message extends Model
 {
     protected function getFieldSpecification(){
         return [
-            'sid'           => self::fieldUUID(),
-            'type'          => self::fieldText(),
             'body'          => self::fieldText(),
             'media_type'    => self::fieldText(),
             'media_url'     => self::fieldText(),
