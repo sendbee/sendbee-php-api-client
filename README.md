@@ -786,8 +786,6 @@ if ($response->isSuccess()) {
         /**
          * @var $message \Sendbee\Api\Models\Message
          */
-        echo "\n sid: ", $message->sid;
-        echo "\n type: ", $message->type;
         echo "\n body: ", $message->body;
         echo "\n media_type: ", $message->media_type;
         echo "\n media_url: ", $message->media_url;
