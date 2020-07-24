@@ -813,7 +813,7 @@ if ($response->isSuccess()) {
 ```php
 // optional parameters
 $params = [
-    'approved' => true | false, // Fetch approved or unapproved templates
+    'status' => 'pending|approved|rejected', // Fetch approved or unapproved templates
     'search_query' => '', // Filter by query string
     'page' => 1 // Page number for pagination
 ];
@@ -836,10 +836,12 @@ if ($response->isSuccess()) {
          * @var $messageTemplate \Sendbee\Api\Models\MessageTemplate
          */
         echo "\n ID: ", $messageTemplate->id;
-        echo "\n approved: ", $messageTemplate->approved;
+        echo "\n status: ", $messageTemplate->status;
+        echo "\n attachment: ", $messageTemplate->attachment;
         echo "\n keyword: ", $messageTemplate->keyword;
         echo "\n text: ", $messageTemplate->text;
         echo "\n language: ", $messageTemplate->language;
+        echo "\n rejected_reason: ", $messageTemplate->rejected_reason;
 
         foreach ($messageTemplate->tags as $tag) {
             /**
@@ -882,6 +884,9 @@ $data = [
     
     // Set to true to disable turning-off chatbot
     'prevent_bot_off' => true,
+
+    // send attachment url for media template mesages
+    'attachment' => 'http...'
 ];
 
 try {
