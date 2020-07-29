@@ -284,7 +284,7 @@ class Client extends BaseClient
     public function getMessageTemplates($params = [])
     {
         $validParams = [
-            'approved', // Fetch approved or unapproved templates
+            'status', // Fetch by status: "rejected", approved", "rejected"
             'search_query', // Any kind of string that will be used to perform filtering
             'page' // Page number for pagination
         ];
