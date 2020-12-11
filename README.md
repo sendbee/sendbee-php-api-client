@@ -849,6 +849,15 @@ if ($response->isSuccess()) {
              */
             echo "\n tag -> name: ", $tag->name;
         }
+        foreach ($messageTemplate->buttons as $button) {
+            /**
+             * @var $tag \Sendbee\Api\Models\MessageTemplateButton
+             */
+            echo "\n button -> index: ", $tag->index;
+            echo "\n button -> type: ", $tag->type;
+            echo "\n button -> title: ", $tag->title;
+            echo "\n button -> value: ", $tag->value;
+        }
     }
 } else {
     /**

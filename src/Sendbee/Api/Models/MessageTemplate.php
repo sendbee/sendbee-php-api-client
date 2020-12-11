@@ -15,6 +15,7 @@ use Sendbee\Api\Support\Model;
  * @property string $reject_reason Reject Reason
  * @property string $keyword Keyword
  * @property string $tags Tags
+ * @property string $buttons Buttons
  * @property string $text Text
  * @property string $language Language
  * @property string $attachment Attachment
@@ -28,6 +29,7 @@ class MessageTemplate extends Model
             'reject_reason' => self::fieldText(),
             'keyword'       => self::fieldText(),
             'tags'          => self::fieldModelCollection(MessageTemplateTag::class),
+            'buttons'       => self::fieldModelCollection(MessageTemplateButton::class),
             'text'          => self::fieldText(),
             'language'      => self::fieldText(),
             'attachment'    => self::fieldText(),
