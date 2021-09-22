@@ -226,6 +226,51 @@ class Client extends BaseClient
     }
 
     /**
+     * Get conversations
+     *
+     * @param array $params
+     * @return Sendbee\Api\Transport\Response|string
+     * @throws GuzzleException
+     * @throws DataException
+     */
+    public function getConversation($params = [])
+    {
+        $requiredKeys = ['conversation_id'];
+        $this->requireKeys($requiredKeys, $params);
+
+        $validParams = [
+            'conversation_id', // Conversation UUID
+        ];
+
+        $query = $this->filterKeys($validParams, $params);
+
+        return $this->makeRequest('conversation', self::GET, $query, [], Conversation::class);
+    }
+
+    /**
+     * Get conversations
+     *
+     * @param array $params
+     * @return Sendbee\Api\Transport\Response|string
+     * @throws GuzzleException
+     * @throws DataException
+     */
+    public function updateConversation($params = [])
+    {
+        $requiredKeys = ['conversation_id'];
+        $this->requireKeys($requiredKeys, $params);
+
+        $validParams = [
+            'conversation_id', // Conversation UUID
+            'folder', // Folder to assign conversation to - open|done
+        ];
+
+        $data = $this->filterKeys($validParams, $params);
+
+        return $this->makeRequest('/conversation', self::POST, [], $data, Conversation::class);
+    }
+
+    /**
      * Get messages in a conversation
      *
      * @param array $params
