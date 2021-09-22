@@ -37,6 +37,8 @@
 #### Conversations
 
 -   [Fetch conversations](#fetch-conversations)  
+-   [Fetch single conversation](#fetch-single-conversation)  
+-   [Update single conversation](#update-single-conversation)  
 -   [Fetch messages](#fetch-messages)  
 
 #### Teams
@@ -753,6 +755,117 @@ if ($response->isSuccess()) {
     }
 }
 ```
+
+### <a name='fetch-single-conversation'>Fetch single conversation</a>
+
+```php
+// parameters
+$params = [
+    // Conversation UUID, MANDATORY
+    'conversation_id' => '...'
+];
+
+try {
+    $response = $sendbeeApi->getConversation($params);
+} catch (\Sendbee\Api\Support\DataException $ex) {
+    // handle missing data
+    // this happens when required data was not provided
+    echo "Missing required data. ", $ex->getMessage();
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+
+if ($response->isSuccess()) {
+    // everything is OK
+    /**
+     * @var $conversation \Sendbee\Api\Models\Conversation
+     */
+    $conversation = $response->getData();
+
+    echo "\n ID: ", $conversation->id;
+    echo "\n folder: ", $conversation->folder;
+    echo "\n chatbot_active: ", $conversation->chatbot_active;
+    echo "\n platform: ", $conversation->platform;
+    echo "\n created_at: ", $conversation->created_at;
+
+    echo "\n contact -> id: ", $conversation->contact->id;
+    echo "\n contact -> name: ", $conversation->contact->name;
+    echo "\n contact -> phone: ", $conversation->contact->phone;
+
+    echo "\n last_message -> direction: ", $conversation->last_message->direction;
+    echo "\n last_message -> status: ", $conversation->last_message->status;
+    echo "\n last_message -> inbound_sent_at: ", $conversation->last_message->inbound_sent_at;
+    echo "\n last_message -> outbound_sent_at: ", $conversation->last_message->outbound_sent_at;
+} else {
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if ($error) {
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
+    }
+}
+```
+
+
+#update-single-conversation
+### <a name='fetch-messages'>Update a single conversation</a>
+
+```php
+// parameters
+$params = [
+    // Conversation UUID, MANDATORY
+    'conversation_id' => '...',
+    // Assigned "folder" - 'open' or 'done'
+    'folder' => 'open|done'
+];
+
+try {
+    $response = $sendbeeApi->updateConversation($params);
+} catch (\Sendbee\Api\Support\DataException $ex) {
+    // handle missing data
+    // this happens when required data was not provided
+    echo "Missing required data. ", $ex->getMessage();
+} catch (\Exception $ex) {
+    // handle exception thrown by GuzzleHttp
+    // this is most likely due to a network issue
+    echo "Could not contact backend endpoint. ", $ex->getMessage();
+}
+
+
+if ($response->isSuccess()) {
+    // everything is OK
+    $data = $response->getData();
+
+    foreach ($data as $message) {
+        /**
+         * @var $message \Sendbee\Api\Models\Message
+         */
+        echo "\n body: ", $message->body;
+        echo "\n media_type: ", $message->media_type;
+        echo "\n media_url: ", $message->media_url;
+        echo "\n status: ", $message->status;
+        echo "\n direction: ", $message->direction;
+        echo "\n sent_at: ", $message->sent_at;
+
+    }
+} else {
+    /**
+     * @var $error \Sendbee\Api\Transport\ResponseError
+     */
+    $error = $response->getError();
+    if ($error) {
+        echo "\n error type: ", $error->type;
+        echo "\n error details: ", $error->detail;
+    }
+}
+```
+
+
 
 ### <a name='fetch-messages'>Fetch messages in a conversation</a>  
 
