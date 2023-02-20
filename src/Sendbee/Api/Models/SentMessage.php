@@ -17,8 +17,10 @@ class SentMessage extends Model
 {
     protected function getFieldSpecification(){
         return [
-            'id'                => self::fieldUUID(),
-            'status'            => self::fieldText(),
+            'id'                    => self::fieldUUID(),
+            'status'                => self::fieldText(),
+            'message_id'            => self::fieldText(),
+            'message_reference_id'  => self::fieldText(),
         ];
     }
 }
