@@ -310,7 +310,9 @@ class Client extends BaseClient
             'phone', // Contact's phone number
             'text', // Message text
             'media_url', // Media URL for media message
-            'prevent_bot_off' // set to true to prevent turning-off chatbot
+            'prevent_bot_off', // set to true to prevent turning-off chatbot
+            'agent_id', // assigned agent for the conversation
+            'live_inbox', // trigger real-time events after sending
         ];
 
         $data = $this->filterKeys($validParams, $params);
@@ -348,8 +350,17 @@ class Client extends BaseClient
      */
     public function sendMessageTemplate($data = [])
     {
-        $requiredKeys = ['phone', 'template_keyword', 'language', 'tags'];
+        $requiredKeys = ['phone', 'template_keyword', 'language'];
         $this->requireKeys($requiredKeys, $data);
+
+        $validParams = [
+            'tags', // template tags
+            'button_tags', // template button tags
+            'agent_id', // assigned agent for the conversation
+            'live_inbox' // trigger real-time events after sending
+        ];
+
+        $query = $this->filterKeys($validParams, $params);
 
         return $this->makeRequest('/conversations/messages/templates/send', self::POST, [], $data, SentMessage::class);
     }
