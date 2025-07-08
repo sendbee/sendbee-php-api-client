@@ -1,13 +1,4 @@
-# Sendbee PHP API Client  
-
-```
-
-                .' '.            __
-       .        .   .           (__\_
-        .         .         . -{{_(|8)
-          ' .  . ' ' .  . '     (__/
-
-```  
+# AI Number PHP API Client  
 
 ## Table of contents  
 
