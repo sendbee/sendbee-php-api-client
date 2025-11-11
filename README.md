@@ -48,14 +48,71 @@
 -   [Toggle bot for conversation with contact on off](#Toggle-bot-for-conversation-with-contact-on-off)
 -   [Get chatbot (automated responses) status](#get-chatbot-automated-responses-status)  
 
-#### Mics  
+#### Mics
 
--   [Pagination](#pagination)  
--   [Exception handling](#exception-handling)  
--   [Authenticate webhook request](#authenticate-webhook-request)  
+-   [Rate Limiting](#rate-limiting)
+-   [Pagination](#pagination)
+-   [Exception handling](#exception-handling)
+-   [Authenticate webhook request](#authenticate-webhook-request)
 -   [Official Documentation](http://developer.sendbee.io)  
 
-## <a name='installation'>Installation</a>  
+## Requirements
+
+- PHP 5.5 or higher
+- Guzzle HTTP client 6.5+ or 7.0+
+- Composer
+
+### PHP 8.2+ Compatibility
+
+This library is fully compatible with PHP 8.2 and later versions. The library supports both Guzzle 6.5+ and Guzzle 7.x to ensure compatibility across different PHP versions:
+
+- **PHP 7.x**: Compatible with Guzzle 6.5+ and Guzzle 7.x
+- **PHP 8.0+**: Recommended to use Guzzle 7.x for best performance and to avoid deprecation warnings
+- **PHP 8.2+**: Requires Guzzle 7.x to avoid deprecation warnings
+
+When installing on PHP 8.2+, Composer will automatically install Guzzle 7.x.
+
+### Enhanced Model Support
+
+The client library includes comprehensive model support with all fields returned by the Sendbee API. Recent enhancements include:
+
+**Contact Model**:
+- `modified_at` - Timestamp when contact was last modified
+- `has_messaging_consent` - Boolean indicating if contact has given messaging consent
+
+**ContactTag Model**:
+- `editable` - Boolean indicating if tag can be edited
+- `disable_contact` - Boolean indicating if tag disables contact
+- `icons` - Array of icon data
+
+**ContactNote Model**:
+- `id` - UUID identifier for the note
+
+**Message Model**:
+- `id` - UUID identifier for the message
+- `fail_reason` - Reason for message failure (when applicable)
+- `action` - Action associated with the message
+- `meta_data` - Additional metadata as an array
+- `from_user_id` - UUID of sender user
+- `to_user_id` - UUID of recipient user
+
+**MessageTemplate Model**:
+- `rejected_reason` - Reason for template rejection (when applicable)
+- `name` - Template name
+- `category` - Template category
+- `button_tags` - Collection of tags for buttons
+
+**MessageTemplateButton Model**:
+- `icon` - Icon data as an array/object
+- `action` - Button action type
+- `flow_action` - Flow action identifier
+- `navigate_screen` - Screen navigation target
+- `flow_id` - Associated flow identifier
+- `url_type` - Type of URL for the button
+
+All models are automatically populated from API responses, ensuring type safety and easy access to all available data.
+
+## <a name='installation'>Installation</a>
 
 The recommended way to install Sendbee API is with [Composer](https://getcomposer.org/).
 
@@ -1344,9 +1401,67 @@ $error = $response->getError();
 // get a warning message sent by API (when available)
 $warning = $response->getWarning();
 
+// get response headers
+$headers = $response->getHeaders();
+
+// get rate limit information from response headers
+$rateLimit = $response->getRateLimitLimit();           // requests per minute (60)
+$rateLimitRemaining = $response->getRateLimitRemaining(); // remaining requests
+$rateLimitReset = $response->getRateLimitReset();      // timestamp when limit resets
+
 // if you prefer to deal with the raw server response, that is available as well
 $rawResponseString = $response->getRawBody();
 ```
+
+
+### <a name='rate-limiting'>Rate Limiting</a>
+
+The Sendbee API enforces a rate limit of **60 requests per minute**. When this limit is exceeded, the API returns a `429 Too Many Requests` status code along with a `Retry-After` header indicating how many seconds to wait before retrying.
+
+#### Automatic Rate Limit Handling
+
+The PHP client library automatically handles rate limiting for you:
+
+- When a 429 response is received, the client automatically retries the request up to 3 times
+- The client reads the `Retry-After` header and waits the specified duration before retrying (defaults to 30 seconds if header is missing)
+- Retry attempts are logged to help with debugging
+- This behavior is transparent and requires no additional code from you
+
+```php
+// No special handling needed - rate limiting is automatic
+$response = $sendbeeApi->getContacts();
+
+// Even when paginating through many pages, the client handles rate limits automatically
+for ($page = 1; $page <= 126; $page++) {
+    $response = $sendbeeApi->getContacts(['page' => $page]);
+    // Process results...
+}
+```
+
+#### Monitoring Rate Limits
+
+You can monitor your rate limit usage by inspecting response headers:
+
+```php
+$response = $sendbeeApi->getContacts();
+
+// Get rate limit information
+$limit = $response->getRateLimitLimit();           // 60 (requests per minute)
+$remaining = $response->getRateLimitRemaining();   // How many requests left
+$reset = $response->getRateLimitReset();           // Unix timestamp when limit resets
+
+echo "Rate limit: $remaining/$limit requests remaining";
+echo "Resets at: " . date('Y-m-d H:i:s', $reset);
+```
+
+#### HTTP Timeouts
+
+The client is configured with the following timeouts:
+
+- **Request timeout**: 30 seconds (maximum time for the entire request to complete)
+- **Connection timeout**: 10 seconds (maximum time to establish a connection)
+
+These timeouts are designed to work well with the API's rate limiting and ensure reliable operation even during high-volume operations.
 
 
 ### <a name='pagination'>Pagination</a>

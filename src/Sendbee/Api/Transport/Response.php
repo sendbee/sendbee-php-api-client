@@ -27,12 +27,14 @@ class Response
     protected $links;
     protected $warning;
     protected $error;
+    protected $headers;
 
-    public function __construct($httpStatus, $responseBody = '', $dataModelClass = null)
+    public function __construct($httpStatus, $responseBody = '', $dataModelClass = null, $headers = [])
     {
         $this->httpStatus = $httpStatus;
         $this->success = ($httpStatus >= 200) && ($httpStatus < 300);
         $this->rawBody = $responseBody;
+        $this->headers = $headers;
 
         try
         {
@@ -156,6 +158,38 @@ class Response
     public function getError()
     {
         return $this->error;
+    }
+
+    /**
+     * @return array
+     */
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
+
+    /**
+     * @return int|null Rate limit - requests per minute
+     */
+    public function getRateLimitLimit()
+    {
+        return isset($this->headers['X-RateLimit-Limit']) ? (int)$this->headers['X-RateLimit-Limit'][0] : null;
+    }
+
+    /**
+     * @return int|null Rate limit - remaining requests
+     */
+    public function getRateLimitRemaining()
+    {
+        return isset($this->headers['X-RateLimit-Remaining']) ? (int)$this->headers['X-RateLimit-Remaining'][0] : null;
+    }
+
+    /**
+     * @return int|null Rate limit - reset timestamp
+     */
+    public function getRateLimitReset()
+    {
+        return isset($this->headers['X-RateLimit-Reset']) ? (int)$this->headers['X-RateLimit-Reset'][0] : null;
     }
 
 

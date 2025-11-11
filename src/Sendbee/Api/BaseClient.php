@@ -108,7 +108,8 @@ class BaseClient
 
         $client = new GuzzleHttpClient([
             'base_uri' => self::$baseURL,
-            'timeout' => 2.0,
+            'timeout' => 30.0,
+            'connect_timeout' => 10.0,
             'headers' => [
                 'User-Agent' => 'Sendbee PHP API Client',
                 "X-Auth-Token" => $authToken,
@@ -118,17 +119,45 @@ class BaseClient
             ]
         ]);
 
-        try {
-            $response = $client->request($method, $path, ['query' => $query, 'json' => $data]);
-            $responseContent = $response->getBody()->getContents();
-            $responseStatusCode = $response->getStatusCode();
-        } catch (\GuzzleHttp\Exception\RequestException $ex) {
-            if ($ex->hasResponse()) {
-                $response = $ex->getResponse();
+        $maxRetries = 3;
+        $retryCount = 0;
+
+        while ($retryCount <= $maxRetries) {
+            try {
+                $options = [];
+                if (!empty($data)) {
+                    $options['json'] = $data;
+                }
+                if (!empty($query)) {
+                    $options['query'] = $query;
+                }
+                $response = $client->request($method, $path, $options);
                 $responseContent = $response->getBody()->getContents();
                 $responseStatusCode = $response->getStatusCode();
-            } else {
-                throw $ex;
+                $responseHeaders = $response->getHeaders();
+                break; // Success, exit retry loop
+            } catch (\GuzzleHttp\Exception\RequestException $ex) {
+                if ($ex->hasResponse()) {
+                    $response = $ex->getResponse();
+                    $responseContent = $response->getBody()->getContents();
+                    $responseStatusCode = $response->getStatusCode();
+                    $responseHeaders = $response->getHeaders();
+
+                    // Handle 429 rate limiting
+                    if ($responseStatusCode == 429 && $retryCount < $maxRetries) {
+                        $retryAfter = 30; // Default to 30 seconds
+                        if (isset($responseHeaders['Retry-After']) && !empty($responseHeaders['Retry-After'])) {
+                            $retryAfter = (int)$responseHeaders['Retry-After'][0];
+                        }
+                        $retryCount++;
+                        error_log("Rate limit exceeded (429). Retry $retryCount/$maxRetries. Waiting $retryAfter seconds...");
+                        sleep($retryAfter);
+                        continue; // Retry the request
+                    }
+                    break; // Not a 429 or max retries reached, exit loop
+                } else {
+                    throw $ex;
+                }
             }
         }
 
@@ -136,7 +165,7 @@ class BaseClient
             return $response;
         }
 
-        return new Transport\Response($responseStatusCode, $responseContent, $modelClass);
+        return new Transport\Response($responseStatusCode, $responseContent, $modelClass, $responseHeaders);
     }
 
     protected function filterKeys($allowedKeys, $received)

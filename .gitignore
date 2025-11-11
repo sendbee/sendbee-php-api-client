@@ -3,3 +3,7 @@
 
 /vendor/
 composer.lock
+docker-compose.yml
+Dockerfile
+fixes.md
+test_api_endpoints.php

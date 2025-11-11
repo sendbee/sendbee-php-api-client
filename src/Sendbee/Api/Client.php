@@ -360,7 +360,7 @@ class Client extends BaseClient
             'live_inbox' // trigger real-time events after sending
         ];
 
-        $query = $this->filterKeys($validParams, $params);
+        $query = $this->filterKeys($validParams, $data);
 
         return $this->makeRequest('/conversations/messages/templates/send', self::POST, [], $data, SentMessage::class);
     }
