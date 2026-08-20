@@ -194,4 +194,20 @@ class BaseClient
         }
         return true;
     }
+
+    /**
+     * @param $anyOfKeys
+     * @param $data
+     * @return bool
+     * @throws DataException
+     */
+    protected function requireOneOf($anyOfKeys, $data)
+    {
+        // check if at least one of the keys is present
+        $present = array_intersect($anyOfKeys, array_keys($data));
+        if (empty($present)) {
+            throw new DataException('Data must contain at least one of these keys: ' . join(', ', $anyOfKeys));
+        }
+        return true;
+    }
 }

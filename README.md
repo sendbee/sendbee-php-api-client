@@ -79,6 +79,10 @@ The client library includes comprehensive model support with all fields returned
 **Contact Model**:
 - `modified_at` - Timestamp when contact was last modified
 - `has_messaging_consent` - Boolean indicating if contact has given messaging consent
+- `whatsapp_user_id` - WhatsApp Business-scoped user ID (BSUID), example `US.13491208655302741918`
+
+**ConversationContact Model**:
+- `whatsapp_user_id` - WhatsApp Business-scoped user ID (BSUID) of the conversation contact
 
 **ContactTag Model**:
 - `editable` - Boolean indicating if tag can be edited
@@ -205,6 +209,7 @@ if ($response->isSuccess()) {
         echo "\n ID: ", $contact->id;
         echo "\n name: ", $contact->name;
         echo "\n phone: ", $contact->phone;
+        echo "\n whatsapp_user_id: ", $contact->whatsapp_user_id;
         echo "\n created_at: ", $contact->created_at;
         echo "\n status: ", $contact->status;
         echo "\n folder: ", $contact->folder;
@@ -255,6 +260,10 @@ $contactData = [
     'phone' => '+...',
 
     // feel free to specify other optional contact data here
+
+    // WhatsApp Business-scoped user ID (BSUID) of the contact
+    // example "US.13491208655302741918"
+    'whatsapp_user_id' => '...',
 
     // tag new contact
     // if tag doesn't exist, it will be created
@@ -323,6 +332,10 @@ $contactData = [
     'id' => '...',
 
     // feel free to specify other optional contact data here
+
+    // WhatsApp Business-scoped user ID (BSUID) of the contact
+    // example "US.13491208655302741918"
+    'whatsapp_user_id' => '...',
 
     // tag new contact
     // if tag doesn't exist, it will be created
@@ -785,6 +798,7 @@ if ($response->isSuccess()) {
         echo "\n contact -> id: ", $conversation->contact->id;
         echo "\n contact -> name: ", $conversation->contact->name;
         echo "\n contact -> phone: ", $conversation->contact->phone;
+        echo "\n contact -> whatsapp_user_id: ", $conversation->contact->whatsapp_user_id;
 
         echo "\n last_message -> direction: ", $conversation->last_message->direction;
         echo "\n last_message -> status: ", $conversation->last_message->status;
@@ -842,6 +856,7 @@ if ($response->isSuccess()) {
     echo "\n contact -> id: ", $conversation->contact->id;
     echo "\n contact -> name: ", $conversation->contact->name;
     echo "\n contact -> phone: ", $conversation->contact->phone;
+    echo "\n contact -> whatsapp_user_id: ", $conversation->contact->whatsapp_user_id;
 
     echo "\n last_message -> direction: ", $conversation->last_message->direction;
     echo "\n last_message -> status: ", $conversation->last_message->status;
@@ -1036,8 +1051,14 @@ if ($response->isSuccess()) {
 
 ```php
 $data = [
-    // phone number to send the message to, MANDATORY
+    // phone number to send the message to
+    // either 'phone' or 'whatsapp_user_id' is MANDATORY
     'phone' => '+...',
+    
+    // WhatsApp Business-scoped user ID (BSUID) of the recipient, example "US.13491208655302741918"
+    // used instead of 'phone' when the phone number is unknown
+    // if both are provided, 'phone' takes precedence
+    'whatsapp_user_id' => '...',
     
     // keyword of an existing template message you are using, MANDATORY
     'template_keyword' => '...',
@@ -1102,8 +1123,13 @@ Documents: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX
 
 ```php
 $data = [
-    // phone number to send the message to, MANDATORY
+    // phone number to send the message to
+    // either 'phone' or 'whatsapp_user_id' is MANDATORY
     'phone' => '+...',
+    // WhatsApp Business-scoped user ID (BSUID) of the recipient, example "US.13491208655302741918"
+    // used instead of 'phone' when the phone number is unknown
+    // if both are provided, 'phone' takes precedence
+    'whatsapp_user_id' => '...',
     // message text, MANDATORY
     'text' => '...',
     // Media URL for media message

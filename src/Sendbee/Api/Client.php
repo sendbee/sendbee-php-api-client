@@ -296,6 +296,11 @@ class Client extends BaseClient
     /**
      * Send a message
      *
+     * The recipient can be identified by 'phone' or by 'whatsapp_user_id'
+     * (WhatsApp Business-scoped user ID / BSUID, example "US.13491208655302741918").
+     * Use 'whatsapp_user_id' instead of 'phone' when the phone number is unknown.
+     * If both are provided, 'phone' takes precedence.
+     *
      * @param  $params
      * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
@@ -303,11 +308,13 @@ class Client extends BaseClient
      */
     public function sendMessage($params)
     {
-        $requiredKeys = ['phone', 'text'];
+        $requiredKeys = ['text'];
         $this->requireKeys($requiredKeys, $params);
+        $this->requireOneOf(['phone', 'whatsapp_user_id'], $params);
 
         $validParams = [
             'phone', // Contact's phone number
+            'whatsapp_user_id', // Contact's WhatsApp Business-scoped user ID (BSUID), used instead of phone
             'text', // Message text
             'media_url', // Media URL for media message
             'prevent_bot_off', // set to true to prevent turning-off chatbot
@@ -343,6 +350,11 @@ class Client extends BaseClient
     /**
      * Send a message template
      *
+     * The recipient can be identified by 'phone' or by 'whatsapp_user_id'
+     * (WhatsApp Business-scoped user ID / BSUID, example "US.13491208655302741918").
+     * Use 'whatsapp_user_id' instead of 'phone' when the phone number is unknown.
+     * If both are provided, 'phone' takes precedence.
+     *
      * @param array $data
      * @return Sendbee\Api\Transport\Response|string
      * @throws GuzzleException
@@ -350,10 +362,12 @@ class Client extends BaseClient
      */
     public function sendMessageTemplate($data = [])
     {
-        $requiredKeys = ['phone', 'template_keyword', 'language'];
+        $requiredKeys = ['template_keyword', 'language'];
         $this->requireKeys($requiredKeys, $data);
+        $this->requireOneOf(['phone', 'whatsapp_user_id'], $data);
 
         $validParams = [
+            'whatsapp_user_id', // Contact's WhatsApp Business-scoped user ID (BSUID), used instead of phone
             'tags', // template tags
             'button_tags', // template button tags
             'agent_id', // assigned agent for the conversation
