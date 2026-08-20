@@ -149,7 +149,8 @@ class Model
     public function setAttribute($key, $value)
     {
         if (!array_key_exists($key, $this->attributes)) {
-            trigger_error("Field '{$key}' is not present on model (" . get_class($this) . ").");
+            // ignore fields the API returns that this model does not declare,
+            // so new API fields never break older SDK releases
             return $this;
         }
 
