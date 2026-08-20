@@ -16,6 +16,10 @@ class BaseClient
     const PUT = 'PUT';
     const DELETE = 'DELETE';
 
+    // keep in sync with release tags - the API uses the versioned
+    // User-Agent to decide which response fields a client understands
+    const VERSION = '1.7.0';
+
     protected static $baseURL = 'https://api-v2.sendbee.io';
     protected static $returnRawGuzzleResponse = false;
 
@@ -111,7 +115,7 @@ class BaseClient
             'timeout' => 30.0,
             'connect_timeout' => 10.0,
             'headers' => [
-                'User-Agent' => 'Sendbee PHP API Client',
+                'User-Agent' => 'Sendbee PHP API Client/' . self::VERSION,
                 "X-Auth-Token" => $authToken,
                 'X-Api-Key' => $this->api_key,
                 "Accept" => "application/json",
@@ -191,6 +195,22 @@ class BaseClient
         $missing = array_diff($requiredKeys, array_keys($data));
         if (!empty($missing)) {
             throw new DataException('Data is missing required keys: ' . join(', ', $missing));
+        }
+        return true;
+    }
+
+    /**
+     * @param $anyOfKeys
+     * @param $data
+     * @return bool
+     * @throws DataException
+     */
+    protected function requireOneOf($anyOfKeys, $data)
+    {
+        // check if at least one of the keys is present
+        $present = array_intersect($anyOfKeys, array_keys($data));
+        if (empty($present)) {
+            throw new DataException('Data must contain at least one of these keys: ' . join(', ', $anyOfKeys));
         }
         return true;
     }
